@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<!-- 検索エンジン向け基本タグ -->
+  <!-- 検索エンジン向け基本タグ -->
   <title>ポケふたナビ | 全国ポケふたマップ＆ルート作成・アルバムアプリ</title>
   <meta name="description" content="全国500箇所以上の「ポケふた（ポケモンマンホール）」を網羅したマップアプリ。現在地や都道府県からの検索、訪問記録・My写真アルバム保存、Googleマップと連携した巡回ルート作成が可能です。">
   <meta name="keywords" content="ポケふた,ポケモンマンホール,マップ,ルート作成,ポケモン,ポケふたナビ,聖地巡礼">
@@ -93,7 +93,7 @@
       border-top: 2px solid #e5e7eb; 
       padding: 12px; 
       padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* iPhoneホームバー被り防止 */
-      max-height: 35vh; 
+      max-height: 40vh; 
       display: flex; 
       flex-direction: column; 
       gap: 8px; 
@@ -102,6 +102,26 @@
     }
     .panel-header { display: flex; justify-content: space-between; align-items: center; }
     .panel-title { font-size: 14px; font-weight: bold; color: #374151; }
+
+    /* ルートモード選択UI */
+    .route-mode-selector {
+      display: flex;
+      gap: 12px;
+      background: #f3f4f6;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #374151;
+      align-items: center;
+      justify-content: space-around;
+    }
+    .route-mode-selector label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
     
     .route-list-container { flex: 1; overflow-y: auto; margin-top: 4px; min-height: 50px; }
     .route-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
@@ -113,7 +133,7 @@
     .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
     .btn-delete { background: #fee2e2; color: #ef4444; }
 
-    .btn-group { display: flex; gap: 8px; margin-top: 6px; }
+    .btn-group { display: flex; gap: 8px; margin-top: 2px; }
     button.btn-main { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
     .btn-primary { background: #059669; color: white; }
     .btn-primary:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
@@ -200,6 +220,18 @@
         </label>
         <button class="btn-clear" onclick="clearSelected()">クリア</button>
       </div>
+    </div>
+
+    <!-- ルート作成モード切り替えスイッチ -->
+    <div class="route-mode-selector">
+      <label>
+        <input type="radio" name="routeMode" value="current" checked>
+        🚗 現在地から出発
+      </label>
+      <label>
+        <input type="radio" name="routeMode" value="spotsOnly">
+        📍 ポケふた間のみ
+      </label>
     </div>
     
     <div class="route-list-container">
@@ -1160,19 +1192,39 @@
       updateRouteUI();
     }
 
+    // Googleマップ起動ロジック（現在地出発 / ポケふた間のみ切り替え対応）
     function openGoogleMaps() {
       if (selectedRoute.length === 0) return;
 
-      const origin = `${selectedRoute[0].lat},${selectedRoute[0].lng}`;
-      const destination = `${selectedRoute[selectedRoute.length - 1].lat},${selectedRoute[selectedRoute.length - 1].lng}`;
+      const mode = document.querySelector('input[name="routeMode"]:checked').value;
+      const lastSpot = selectedRoute[selectedRoute.length - 1];
+      const destination = `${lastSpot.lat},${lastSpot.lng}`;
 
-      let waypoints = '';
-      if (selectedRoute.length > 2) {
-        const middle = selectedRoute.slice(1, -1);
-        waypoints = '&waypoints=' + middle.map(s => `${s.lat},${s.lng}`).join('|');
+      let url = '';
+
+      if (mode === 'current') {
+        // --- 1. 現在地から出発モード ---
+        let waypoints = '';
+        if (selectedRoute.length > 1) {
+          const waypointsList = selectedRoute.slice(0, -1);
+          waypoints = '&waypoints=' + waypointsList.map(s => `${s.lat},${s.lng}`).join('|');
+        }
+        // originを指定しないことで、Googleマップ側が自動的に「現在地」を出発地としてルート生成
+        url = `https://www.google.com/maps/dir/?api=1&destination=${destination}${waypoints}&travelmode=driving`;
+
+      } else {
+        // --- 2. ポケふた間のみモード ---
+        const firstSpot = selectedRoute[0];
+        const origin = `${firstSpot.lat},${firstSpot.lng}`;
+
+        let waypoints = '';
+        if (selectedRoute.length > 2) {
+          const waypointsList = selectedRoute.slice(1, -1);
+          waypoints = '&waypoints=' + waypointsList.map(s => `${s.lat},${s.lng}`).join('|');
+        }
+        url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints}&travelmode=driving`;
       }
 
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints}&travelmode=driving`;
       window.open(url, '_blank');
     }
 
