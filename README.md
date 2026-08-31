@@ -1,0 +1,1 @@
+# pokelid_navi.ver1.01
