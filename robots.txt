@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://akabixi.github.io/pokelid_navi.ver1.01/sitemap.xml
