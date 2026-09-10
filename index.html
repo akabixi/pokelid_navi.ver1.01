@@ -14,12 +14,12 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://akabixi.github.io/pokelid_navi.ver1.01/">
   <!-- html2canvasライブラリ（画面を画像変換するライブラリ） -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- iPhone / iPad ホーム画面用 -->
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-<!-- Android / PCブラウザ用 -->
-<link rel="icon" type="image/png" href="apple-touch-icon.png">
+  <!-- Android / PCブラウザ用 -->
+  <link rel="icon" type="image/png" href="apple-touch-icon.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -54,7 +54,7 @@
     }
     header h1 { font-size: 16px; font-weight: bold; }
     
-    .filter-group { display: flex; gap: 6px; align-items: center; position: relative; }
+    .filter-group { display: flex; gap: 6px; align-items: center; position: relative; flex-wrap: wrap; }
     select { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; }
 
     /* 都道府県マルチセレクトUI */
@@ -158,6 +158,9 @@
   <header>
     <h1>ポケふたナビ</h1>
     <div class="filter-group">
+      <!-- ★追加：ポケモン名リアルタイム検索欄★ -->
+      <input type="text" id="pokemonSearch" placeholder="🔍 ポケモン検索" oninput="renderMarkers(false)" style="padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: bold; width: 120px; color: #1e3a8a;">
+
       <!-- 1つ目のタブ：全国＋8地方 -->
       <select id="regionSelect" onchange="handleRegionChange(true)">
         <option value="all">全国</option>
@@ -1009,9 +1012,10 @@
       }
     }
 
-    // 現在の選択条件（地方＋都道府県チェック）に基づいてピンを再描画
+    // 現在の選択条件（地方＋都道府県チェック＋ポケモン名検索）に基づいてピンを再描画
     function renderMarkers(isUserAction) {
       const region = document.getElementById('regionSelect').value;
+      const searchText = document.getElementById('pokemonSearch') ? document.getElementById('pokemonSearch').value.trim().toLowerCase() : '';
 
       Object.values(markers).forEach(m => map.removeLayer(m));
       markers = {};
@@ -1028,9 +1032,11 @@
         targetSpots = rawSpotData[region];
       }
 
-      // 都道府県チェックでさらにフィルター
+      // 都道府県チェック ＆ ポケモン名でフィルター
       targetSpots = targetSpots.filter(spot => {
-        return Array.from(selectedPrefs).some(pref => spot.pref.includes(pref));
+        const matchPref = Array.from(selectedPrefs).some(pref => spot.pref.includes(pref));
+        const matchPokemon = searchText === '' || spot.name.toLowerCase().includes(searchText);
+        return matchPref && matchPokemon;
       });
 
       if (targetSpots.length === 0) return;
@@ -1038,9 +1044,10 @@
       const bounds = [];
       targetSpots.forEach(spot => {
         const isVisited = visitedStatus[spot.id] || false;
+        const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
         
         const marker = L.marker([spot.lat, spot.lng], {
-          icon: isVisited ? greenIcon : blueIcon
+          icon: isVisitedBool ? greenIcon : blueIcon
         }).addTo(map);
         
         marker.on('click', () => openModal(spot));
@@ -1063,8 +1070,9 @@
 
       // 訪問ステータスボタン表示切り替え
       const isVisited = visitedStatus[spot.id] || false;
+      const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
       const vBtn = document.getElementById('modalVisitBtn');
-      if (isVisited) {
+      if (isVisitedBool) {
         vBtn.innerText = "✓ 訪問済";
         vBtn.className = "btn-modal btn-visited";
       } else {
@@ -1116,38 +1124,37 @@
       reader.readAsDataURL(file);
     }
 
- function toggleVisitedCurrent() {
-  if (!currentActiveSpot) return;
-  const id = currentActiveSpot.id;
-  const todayKey = new Date().toISOString().slice(0, 10); // 例: "2026-09-10"
-  
-  // 訪問済みフラグと変更日付をセットで保持する構造に変更
-  const currentVal = visitedStatus[id];
-  const isCurrentlyVisited = typeof currentVal === 'object' ? currentVal.visited : !!currentVal;
+    function toggleVisitedCurrent() {
+      if (!currentActiveSpot) return;
+      const id = currentActiveSpot.id;
+      const todayKey = new Date().toISOString().slice(0, 10);
+      
+      const currentVal = visitedStatus[id];
+      const isCurrentlyVisited = typeof currentVal === 'object' ? currentVal.visited : !!currentVal;
 
-  if (!isCurrentlyVisited) {
-    visitedStatus[id] = { visited: true, date: todayKey };
-  } else {
-    visitedStatus[id] = { visited: false, date: todayKey };
-  }
+      if (!isCurrentlyVisited) {
+        visitedStatus[id] = { visited: true, date: todayKey };
+      } else {
+        visitedStatus[id] = { visited: false, date: todayKey };
+      }
 
-  const isVisited = visitedStatus[id].visited;
+      const isVisited = visitedStatus[id].visited;
 
-  if (markers[id]) {
-    markers[id].setIcon(isVisited ? greenIcon : blueIcon);
-  }
+      if (markers[id]) {
+        markers[id].setIcon(isVisited ? greenIcon : blueIcon);
+      }
 
-  const vBtn = document.getElementById('modalVisitBtn');
-  if (isVisited) {
-    vBtn.innerText = "✓ 訪問済";
-    vBtn.className = "btn-modal btn-visited";
-  } else {
-    vBtn.innerText = "未訪問にする";
-    vBtn.className = "btn-modal btn-visit";
-  }
+      const vBtn = document.getElementById('modalVisitBtn');
+      if (isVisited) {
+        vBtn.innerText = "✓ 訪問済";
+        vBtn.className = "btn-modal btn-visited";
+      } else {
+        vBtn.innerText = "未訪問にする";
+        vBtn.className = "btn-modal btn-visit";
+      }
 
-  saveSettings();
-}
+      saveSettings();
+    }
 
     function addToRouteCurrent() {
       if (!currentActiveSpot) return;
@@ -1228,17 +1235,14 @@
       let url = '';
 
       if (mode === 'current') {
-        // --- 1. 現在地から出発モード ---
         let waypoints = '';
         if (selectedRoute.length > 1) {
           const waypointsList = selectedRoute.slice(0, -1);
           waypoints = '&waypoints=' + waypointsList.map(s => `${s.lat},${s.lng}`).join('|');
         }
-        // originを指定しないことで、Googleマップ側が自動的に「現在地」を出発地としてルート生成
         url = `https://www.google.com/maps/dir/?api=1&destination=${destination}${waypoints}&travelmode=driving`;
 
       } else {
-        // --- 2. ポケふた間のみモード ---
         const firstSpot = selectedRoute[0];
         const origin = `${firstSpot.lat},${firstSpot.lng}`;
 
@@ -1253,14 +1257,13 @@
       window.open(url, '_blank');
     }
 
-    // バックアップデータ（訪問状況 + 写真データ）のエクスポート（保存）
+    // バックアップデータのエクスポート
     async function exportBackupData() {
       if (!db) {
         alert("データベース準備中です。少し待ってから再試行してください。");
         return;
       }
 
-      // IndexedDBから全写真データを取得
       const photos = await new Promise((resolve) => {
         const tx = db.transaction("photos", "readonly");
         const request = tx.objectStore("photos").getAll();
@@ -1287,7 +1290,7 @@
       URL.revokeObjectURL(url);
     }
 
-    // バックアップデータのインポート（復元）
+    // バックアップデータのインポート
     function importBackupData(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1306,19 +1309,16 @@
             return;
           }
 
-          // 1. localStorageの復元
           visitedStatus = data.visitedStatus || {};
           saveSettings();
 
-          // 2. IndexedDB（写真）の復元
           if (data.photos && Array.isArray(data.photos) && db) {
             const tx = db.transaction("photos", "readwrite");
             const store = tx.objectStore("photos");
-            store.clear(); // 既存写真をクリア
+            store.clear();
             data.photos.forEach(p => store.put(p));
           }
 
-          // 3. マップ画面の再描画
           handleRegionChange(false);
           alert("データの復元が完了しました！");
         } catch (err) {
@@ -1327,177 +1327,205 @@
         }
       };
       reader.readAsText(file);
-      event.target.value = ""; // 入力値をリセット
+      event.target.value = "";
     }
 
     window.onload = init;
   </script>
+
   <!-- SNSシェア用モーダル ＆ スタイル -->
-<style>
-  .share-modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
-    z-index: 9999; padding: 16px; box-sizing: border-box;
-  }
-  .share-modal-content {
-    background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
-    border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
-  }
-  /* カード画像のデザイン (ネイビー×エメラルドグリーン) */
-  #shareCard {
-    background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
-    text-align: left; font-family: sans-serif; color: #0f172a; margin: 12px 0;
-  }
-  .card-header {
-    background: linear-gradient(135deg, #1e3a8a, #059669); color: white;
-    padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 12px;
-  }
-  .card-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;
-  }
-  .card-img-item {
-    width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;
-  }
-  .card-footer {
-    border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
-  }
-</style>
+  <style>
+    .share-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
+      z-index: 9999; padding: 16px; box-sizing: border-box;
+    }
+    .share-modal-content {
+      background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+      border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+    }
+    /* カード画像のデザイン (ネイビー×エメラルドグリーン) */
+    #shareCard {
+      background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
+      text-align: left; font-family: sans-serif; color: #0f172a; margin: 12px 0;
+    }
+    .card-header {
+      background: linear-gradient(135deg, #1e3a8a, #059669); color: white;
+      padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 12px;
+    }
+    .card-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;
+    }
+    .card-img-item {
+      width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;
+    }
+    .card-footer {
+      border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
+    }
+  </style>
 
-<div id="shareModal" class="share-modal-overlay">
-  <div class="share-modal-content">
-    <h3 style="margin-top:0; color:#1e3a8a;">📸 今日の訪問記録カード</h3>
-    
-    <!-- ここが生成される画像エリア -->
-    <div id="shareCard">
-      <div class="card-header">
-        <div style="font-size: 16px;">ポケふたナビ 訪問記録</div>
-        <div id="shareCardDate" style="font-size: 11px; opacity: 0.9; margin-top: 2px;"></div>
+  <div id="shareModal" class="share-modal-overlay">
+    <div class="share-modal-content">
+      <h3 style="margin-top:0; color:#1e3a8a;">📸 今日の訪問記録カード</h3>
+      
+      <!-- ★追加：一言メモ入力欄★ -->
+      <div style="margin: 8px 0; text-align: left;">
+        <label style="font-size: 11px; font-weight: bold; color: #475569;">💬 カードに入れる一言メモ (任意):</label>
+        <input type="text" id="shareMemoInput" placeholder="例：香川ヤドン巡り完了！" oninput="updateCardMemo()" style="width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; margin-top: 2px; box-sizing: border-box;">
       </div>
 
-      <div id="shareCardContent"></div>
+      <!-- ここが生成される画像エリア -->
+      <div id="shareCard">
+        <div class="card-header">
+          <div style="font-size: 16px;">ポケふたナビ 訪問記録</div>
+          <div id="shareCardDate" style="font-size: 11px; opacity: 0.9; margin-top: 2px;"></div>
+        </div>
 
-      <div class="card-footer">
-        <span id="shareCardCount">本日訪問: 0箇所</span>
-        <span>akabixi.github.io/pokelid_navi.ver1.01/</span>
+        <div id="shareCardContent"></div>
+
+        <!-- ★追加：一言メモのカード内表示エリア★ -->
+        <div id="shareCardMemo" style="display:none; background:#f1f5f9; padding:8px; border-radius:6px; font-size:12px; color:#334155; margin-bottom:10px; font-style:italic; border-left:3px solid #059669;"></div>
+
+        <div class="card-footer">
+          <span id="shareCardCount">本日訪問: 0箇所</span>
+          <span>akabixi.github.io/pokelid_navi.ver1.01/</span>
+        </div>
       </div>
-    </div>
 
-    <!-- プレビュー生成用エリア -->
-    <div id="previewArea" style="display:none; margin-bottom:12px;">
-      <p style="font-size: 12px; color: #059669; font-weight: bold;">👇 画像長押し（または右クリック）で保存してください！</p>
-      <img id="generatedImg" style="width: 100%; border-radius: 8px; border: 1px solid #ccc;">
-    </div>
+      <!-- プレビュー生成用エリア -->
+      <div id="previewArea" style="display:none; margin-bottom:12px;">
+        <p style="font-size: 12px; color: #059669; font-weight: bold;">👇 画像長押し（または右クリック）で保存してください！</p>
+        <img id="generatedImg" style="width: 100%; border-radius: 8px; border: 1px solid #ccc;">
+      </div>
 
-    <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
-      <button onclick="generateCardImage()" style="background:#059669; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">① 画像を生成</button>
-      <button onclick="postToX()" style="background:#000000; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">② Xでポスト</button>
-      <button onclick="closeShareModal()" style="background:#94a3b8; color:white; border:none; padding:10px 10px; border-radius:6px; cursor:pointer;">閉じる</button>
+      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
+        <button onclick="generateCardImage()" style="background:#059669; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">① 画像を生成</button>
+        <button onclick="postToX()" style="background:#000000; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">② Xでポスト</button>
+        <button onclick="closeShareModal()" style="background:#94a3b8; color:white; border:none; padding:10px 10px; border-radius:6px; cursor:pointer;">閉じる</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  // シェア用モーダルを開く関数（完全データ連動版）
-  async function openShareModal() {
-    const today = new Date();
-    const todayStr = today.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
-    const todayKey = today.toISOString().slice(0, 10); // "2026-09-10"
-    
-    document.getElementById('shareCardDate').innerText = todayStr;
-    const contentArea = document.getElementById('shareCardContent');
-    contentArea.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">データを読み込み中...</div>';
-    
-    let todaySpots = [];
-    let todayPhotos = [];
+  <script>
+    // 一言メモのリアルタイム更新関数
+    function updateCardMemo() {
+      const memoText = document.getElementById('shareMemoInput').value.trim();
+      const memoEl = document.getElementById('shareCardMemo');
+      
+      if (memoText) {
+        memoEl.innerText = `“ ${memoText} ”`;
+        memoEl.style.display = 'block';
+      } else {
+        memoEl.innerText = '';
+        memoEl.style.display = 'none';
+      }
+    }
 
-    try {
-      // 全地方のスポットをループ処理
-      for (const regionKey in rawSpotData) {
-        const spots = rawSpotData[regionKey];
-        for (const spot of spots) {
-          const status = visitedStatus[spot.id];
-          
-          if (status) {
-            // 本日訪問済み判定 (日付付きオブジェクト OR 旧真偽値データの互換処理)
-            const isVisited = typeof status === 'object' ? status.visited : !!status;
-            const visitDate = typeof status === 'object' ? status.date : todayKey; // 旧データは本日扱い
+    // シェア用モーダルを開く関数（完全データ連動版）
+    async function openShareModal() {
+      const today = new Date();
+      const todayStr = today.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+      const todayKey = today.toISOString().slice(0, 10);
+      
+      document.getElementById('shareCardDate').innerText = todayStr;
+      
+      // 入力欄と表示用メモを初期化
+      document.getElementById('shareMemoInput').value = '';
+      const memoEl = document.getElementById('shareCardMemo');
+      memoEl.innerText = '';
+      memoEl.style.display = 'none';
 
-            if (isVisited && visitDate === todayKey) {
-              // 既存の写真取得関数 (getPhotoDB) を使用
-              const photoData = await getPhotoDB(spot.id);
-              if (photoData) {
-                todayPhotos.push({ name: spot.name, img: photoData });
+      const contentArea = document.getElementById('shareCardContent');
+      contentArea.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">データを読み込み中...</div>';
+      
+      let todaySpots = [];
+      let todayPhotos = [];
+
+      try {
+        for (const regionKey in rawSpotData) {
+          const spots = rawSpotData[regionKey];
+          for (const spot of spots) {
+            const status = visitedStatus[spot.id];
+            
+            if (status) {
+              const isVisited = typeof status === 'object' ? status.visited : !!status;
+              const visitDate = typeof status === 'object' ? status.date : todayKey;
+
+              if (isVisited && visitDate === todayKey) {
+                const photoData = await getPhotoDB(spot.id);
+                if (photoData) {
+                  todayPhotos.push({ name: spot.name, img: photoData });
+                }
+                todaySpots.push(spot.name);
               }
-              todaySpots.push(spot.name);
             }
           }
         }
+      } catch (e) {
+        console.error("データ取得エラー:", e);
       }
-    } catch (e) {
-      console.error("データ取得エラー:", e);
+
+      contentArea.innerHTML = '';
+
+      if (todayPhotos.length > 0) {
+        const grid = document.createElement('div');
+        grid.className = 'card-grid';
+        
+        todayPhotos.forEach(item => {
+          const imgWrap = document.createElement('div');
+          imgWrap.style.position = 'relative';
+          imgWrap.innerHTML = `
+            <img src="${item.img}" class="card-img-item">
+            <div style="position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:9px; padding:2px 4px; border-radius:3px; max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${item.name}
+            </div>`;
+          grid.appendChild(imgWrap);
+        });
+        contentArea.appendChild(grid);
+
+      } else if (todaySpots.length > 0) {
+        let listHtml = `<div style="padding: 10px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155;">
+          <b>📍 本日訪問したポケふた (${todaySpots.length}箇所)</b>
+          <ul style="margin: 6px 0 0 18px; padding: 0;">`;
+        
+        todaySpots.forEach(name => {
+          listHtml += `<li>${name}</li>`;
+        });
+        listHtml += `</ul></div>`;
+        contentArea.innerHTML = listHtml;
+
+      } else {
+        contentArea.innerHTML = `<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>`;
+      }
+
+      document.getElementById('shareCardCount').innerText = `本日訪問: ${todaySpots.length}箇所`;
+      document.getElementById('shareModal').style.display = 'flex';
     }
 
-    contentArea.innerHTML = '';
-
-    if (todayPhotos.length > 0) {
-      // 【パターンA：写真あり】グリッド表示
-      const grid = document.createElement('div');
-      grid.className = 'card-grid';
-      
-      todayPhotos.forEach(item => {
-        const imgWrap = document.createElement('div');
-        imgWrap.style.position = 'relative';
-        imgWrap.innerHTML = `
-          <img src="${item.img}" class="card-img-item">
-          <div style="position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:9px; padding:2px 4px; border-radius:3px; max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-            ${item.name}
-          </div>`;
-        grid.appendChild(imgWrap);
-      });
-      contentArea.appendChild(grid);
-
-    } else if (todaySpots.length > 0) {
-      // 【パターンB：写真なし】本日訪問のリスト表示
-      let listHtml = `<div style="padding: 10px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155;">
-        <b>📍 本日訪問したポケふた (${todaySpots.length}箇所)</b>
-        <ul style="margin: 6px 0 0 18px; padding: 0;">`;
-      
-      todaySpots.forEach(name => {
-        listHtml += `<li>${name}</li>`;
-      });
-      listHtml += `</ul></div>`;
-      contentArea.innerHTML = listHtml;
-
-    } else {
-      // 【パターンC：本日訪問がまだない場合】
-      contentArea.innerHTML = `<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>`;
+    function closeShareModal() {
+      document.getElementById('shareModal').style.display = 'none';
+      document.getElementById('previewArea').style.display = 'none';
     }
 
-    document.getElementById('shareCardCount').innerText = `本日訪問: ${todaySpots.length}箇所`;
-    document.getElementById('shareModal').style.display = 'flex';
-  }
+    function generateCardImage() {
+      const cardElem = document.getElementById('shareCard');
+      html2canvas(cardElem, { scale: 2, useCORS: true }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const imgElem = document.getElementById('generatedImg');
+        imgElem.src = imgData;
+        document.getElementById('previewArea').style.display = 'block';
+      });
+    }
 
-  function closeShareModal() {
-    document.getElementById('shareModal').style.display = 'none';
-    document.getElementById('previewArea').style.display = 'none';
-  }
-
-  function generateCardImage() {
-    const cardElem = document.getElementById('shareCard');
-    html2canvas(cardElem, { scale: 2, useCORS: true }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      const imgElem = document.getElementById('generatedImg');
-      imgElem.src = imgData;
-      document.getElementById('previewArea').style.display = 'block';
-    });
-  }
-
-  function postToX() {
-    const countText = document.getElementById('shareCardCount').innerText;
-    const text = encodeURIComponent(`今日のポケふた巡り完了！\n${countText}！📸\n\n#ポケふた #ポケふたナビ\n`);
-    const url = encodeURIComponent(`https://akabixi.github.io/pokelid_navi.ver1.01/`);
-    window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-  }
-</script>
+    function postToX() {
+      const countText = document.getElementById('shareCardCount').innerText;
+      const memoText = document.getElementById('shareMemoInput').value.trim();
+      const memoFormatted = memoText ? `\n💬 ${memoText}\n` : '';
+      
+      const text = encodeURIComponent(`今日のポケふた巡り完了！\n${countText}！📸${memoFormatted}\n#ポケふた #ポケふたナビ\n`);
+      const url = encodeURIComponent(`https://akabixi.github.io/pokelid_navi.ver1.01/`);
+      window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+    }
+  </script>
 </body>
 </html>
