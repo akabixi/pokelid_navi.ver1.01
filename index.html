@@ -1483,16 +1483,18 @@
         });
         contentArea.appendChild(grid);
 
-      } else if (todaySpots.length > 0) {
-        let listHtml = `<div style="padding: 10px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155;">
-          <b>📍 本日訪問したポケふた (${todaySpots.length}箇所)</b>
-          <ul style="margin: 6px 0 0 18px; padding: 0;">`;
-        
-        todaySpots.forEach(name => {
-          listHtml += `<li>${name}</li>`;
-        });
-        listHtml += `</ul></div>`;
-        contentArea.innerHTML = listHtml;
+} else if (todaySpots.length > 0) {
+  // 【パターンB：写真なし】本日訪問のリスト表示（html2canvas崩れ対策版）
+  let listHtml = `<div style="padding: 10px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155; width: 100%; box-sizing: border-box;">
+    <b style="display: block; width: 100%; white-space: nowrap;">📍 本日訪問したポケふた (${todaySpots.length}箇所)</b>
+    <ul style="margin: 6px 0 0 18px; padding: 0; width: 100%;">`;
+  
+  todaySpots.forEach(name => {
+    listHtml += `<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: list-item;">${name}</li>`;
+  });
+  listHtml += `</ul></div>`;
+  contentArea.innerHTML = listHtml;
+}
 
       } else {
         contentArea.innerHTML = `<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>`;
