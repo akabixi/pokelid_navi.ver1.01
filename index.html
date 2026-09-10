@@ -13,6 +13,8 @@
   <meta property="og:description" content="全国のポケふたを効率よく巡ろう！訪問記録や写真アルバム、Googleマップ連携ルート作成機能を搭載。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://akabixi.github.io/pokelid_navi.ver1.01/">
+  <!-- html2canvasライブラリ（画面を画像変換するライブラリ） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -244,6 +246,12 @@
     <div class="btn-group">
       <button id="navBtn" class="btn-main btn-primary" onclick="openGoogleMaps()" disabled>Googleマップでルートを開く</button>
     </div>
+    <!-- Xでシェアするボタン -->
+<div style="margin-top: 8px;">
+  <button id="shareBtn" class="btn-main" onclick="openShareModal()" style="background-color: #059669; color: white; width: 100%; font-weight: bold; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">
+    📸 今日の記録をXでシェア
+  </button>
+</div>
   </div>
 
   <script>
@@ -1310,5 +1318,115 @@
 
     window.onload = init;
   </script>
+  <!-- SNSシェア用モーダル ＆ スタイル -->
+<style>
+  .share-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
+    z-index: 9999; padding: 16px; box-sizing: border-box;
+  }
+  .share-modal-content {
+    background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+    border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+  }
+  /* カード画像のデザイン (ネイビー×エメラルドグリーン) */
+  #shareCard {
+    background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
+    text-align: left; font-family: sans-serif; color: #0f172a; margin: 12px 0;
+  }
+  .card-header {
+    background: linear-gradient(135deg, #1e3a8a, #059669); color: white;
+    padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 12px;
+  }
+  .card-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;
+  }
+  .card-img-item {
+    width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;
+  }
+  .card-footer {
+    border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
+  }
+</style>
+
+<div id="shareModal" class="share-modal-overlay">
+  <div class="share-modal-content">
+    <h3 style="margin-top:0; color:#1e3a8a;">📸 今日の訪問記録カード</h3>
+    
+    <!-- ここが生成される画像エリア -->
+    <div id="shareCard">
+      <div class="card-header">
+        <div style="font-size: 16px;">ポケふたナビ 訪問記録</div>
+        <div id="shareCardDate" style="font-size: 11px; opacity: 0.9; margin-top: 2px;"></div>
+      </div>
+
+      <div id="shareCardContent"></div>
+
+      <div class="card-footer">
+        <span id="shareCardCount">本日訪問: 0箇所</span>
+        <span>akabixi.github.io/pokelid_navi.ver1.01/</span>
+      </div>
+    </div>
+
+    <!-- プレビュー生成用エリア -->
+    <div id="previewArea" style="display:none; margin-bottom:12px;">
+      <p style="font-size: 12px; color: #059669; font-weight: bold;">👇 画像長押し（または右クリック）で保存してください！</p>
+      <img id="generatedImg" style="width: 100%; border-radius: 8px; border: 1px solid #ccc;">
+    </div>
+
+    <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
+      <button onclick="generateCardImage()" style="background:#059669; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">① 画像を生成</button>
+      <button onclick="postToX()" style="background:#000000; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">② Xでポスト</button>
+      <button onclick="closeShareModal()" style="background:#94a3b8; color:white; border:none; padding:10px 10px; border-radius:6px; cursor:pointer;">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let todayVisitsCount = 0;
+
+  function openShareModal() {
+    const todayStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('shareCardDate').innerText = todayStr;
+    
+    // IndexedDBやローカルの訪問・写真データを取得（サンプルの表示構築）
+    const contentArea = document.getElementById('shareCardContent');
+    contentArea.innerHTML = '';
+    
+    // ※実際のアプリデータ連動用のサンプルロジック（本日追加した画像があればグリッド表示）
+    // 写真がない場合のフォールバック表示
+    contentArea.innerHTML = `
+      <div style="padding: 12px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155;">
+        📍 本日の訪問スポットリスト<br>
+        <ul style="margin: 6px 0 0 18px; padding: 0;">
+          <li>ポケふた（本日訪問したスポット）</li>
+        </ul>
+      </div>`;
+    
+    document.getElementById('shareCardCount').innerText = `本日訪問: ${todayVisitsCount || 1}箇所`;
+    document.getElementById('shareModal').style.display = 'flex';
+  }
+
+  function closeShareModal() {
+    document.getElementById('shareModal').style.display = 'none';
+    document.getElementById('previewArea').style.display = 'none';
+  }
+
+  function generateCardImage() {
+    const cardElem = document.getElementById('shareCard');
+    html2canvas(cardElem, { scale: 2 }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const imgElem = document.getElementById('generatedImg');
+      imgElem.src = imgData;
+      document.getElementById('previewArea').style.display = 'block';
+    });
+  }
+
+  function postToX() {
+    const text = encodeURIComponent(`今日のポケふた巡り完了！\n本日はポケふたを訪問しました！📸\n\n#ポケふた #ポケふたナビ #ポケモンマンホール\n`);
+    const url = encodeURIComponent(`https://akabixi.github.io/pokelid_navi.ver1.01/`);
+    window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+  }
+</script>
 </body>
 </html>
