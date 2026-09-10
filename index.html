@@ -1335,15 +1335,18 @@
 
   <!-- SNSシェア用モーダル ＆ スタイル -->
   <style>
-    .share-modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
-      z-index: 9999; padding: 16px; box-sizing: border-box;
-    }
-    .share-modal-content {
-      background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
-      border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
-    }
+.share-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
+    z-index: 10000; padding: 16px; box-sizing: border-box;
+    pointer-events: auto; /* タップイベントを確実に受け取る */
+  }
+  .share-modal-content {
+    background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+    border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+    position: relative;
+    z-index: 10001;
+  }
     /* カード画像のデザイン (ネイビー×エメラルドグリーン) */
     #shareCard {
       background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
@@ -1528,6 +1531,13 @@
       const url = encodeURIComponent(`https://akabixi.github.io/pokelid_navi.ver1.01/`);
       window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
     }
+    // シェア用モーダルを閉じる関数（安全対策版）
+  function closeShareModal() {
+    const modal = document.getElementById('shareModal');
+    const preview = document.getElementById('previewArea');
+    if (modal) modal.style.display = 'none';
+    if (preview) preview.style.display = 'none';
+  }
   </script>
 </body>
 </html>
