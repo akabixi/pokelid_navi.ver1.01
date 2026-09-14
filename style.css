@@ -1,0 +1,158 @@
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  -webkit-tap-highlight-color: transparent; /* タップ時のグレー枠を非表示 */
+}
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+  background: #f3f4f6; 
+  height: 100vh;
+  height: 100dvh; /* iOS Safari用：動的ツールバー対応 */
+  display: flex; 
+  flex-direction: column; 
+  overflow: hidden; 
+}
+
+header { 
+  background: #1e3a8a; 
+  color: white; 
+  padding: 10px 12px; 
+  padding-top: calc(10px + env(safe-area-inset-top)); /* ノッチ・ステータスバー対策 */
+  display: flex; 
+  gap: 8px; 
+  align-items: center; 
+  justify-content: space-between; 
+  z-index: 10; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  flex-wrap: wrap; 
+}
+header h1 { font-size: 16px; font-weight: bold; }
+
+.filter-group { display: flex; gap: 6px; align-items: center; position: relative; flex-wrap: wrap; }
+select { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; }
+
+/* 都道府県マルチセレクトUI */
+.pref-dropdown { position: relative; }
+.pref-dropdown-btn { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.pref-dropdown-content { display: none; position: absolute; right: 0; top: 110%; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 8px; max-height: 250px; overflow-y: auto; z-index: 100; min-width: 160px; color: #374151; }
+.pref-dropdown-content.show { display: block; }
+.pref-item { display: flex; align-items: center; gap: 6px; padding: 4px 6px; font-size: 13px; cursor: pointer; }
+.pref-item:hover { background: #f3f4f6; border-radius: 4px; }
+.pref-actions { display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 6px; font-size: 11px; }
+.pref-action-btn { background: none; border: none; color: #2563eb; font-weight: bold; cursor: pointer; }
+
+#map { flex: 1; width: 100%; z-index: 1; }
+
+/* ミニウィンドウ（モーダル）スタイル */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+.modal-card { background: white; width: 90%; max-width: 340px; border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; position: relative; max-height: 80vh; overflow-y: auto; }
+.modal-close { position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 20px; font-weight: bold; color: #9ca3af; cursor: pointer; }
+
+.spot-title { font-weight: bold; font-size: 16px; color: #1f2937; margin-bottom: 2px; }
+.spot-pref { color: #6b7280; font-size: 12px; margin-bottom: 12px; }
+
+/* 写真表示枠 */
+.photo-container { width: 160px; height: 160px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid #e5e7eb; overflow: hidden; background: #f9fafb; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+.photo-img { width: 100%; height: 100%; object-fit: cover; }
+.photo-placeholder { color: #9ca3af; font-size: 11px; padding: 8px; }
+
+.btn-photo-upload { display: inline-block; padding: 6px 12px; background: #4b5563; color: white; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
+.btn-photo-upload input { display: none; }
+
+.btn-official { display: block; width: 100%; padding: 8px; margin-bottom: 12px; background: #f3f4f6; color: #2563eb; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
+
+.modal-btn-group { display: flex; gap: 8px; }
+.btn-modal { flex: 1; padding: 10px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+.btn-visit { background: #e5e7eb; color: #374151; }
+.btn-visited { background: #059669; color: white; }
+.btn-add-route { background: #2563eb; color: white; }
+
+/* 下部パネル（Safariセーフエリア対応） */
+.control-panel { 
+  background: white; 
+  border-top: 2px solid #e5e7eb; 
+  padding: 12px; 
+  padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* iPhoneホームバー被り防止 */
+  max-height: 40vh; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
+  z-index: 2; 
+}
+.panel-header { display: flex; justify-content: space-between; align-items: center; }
+.panel-title { font-size: 14px; font-weight: bold; color: #374151; }
+
+/* ルートモード選択UI */
+.route-mode-selector {
+  display: flex;
+  gap: 12px;
+  background: #f3f4f6;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #374151;
+  align-items: center;
+  justify-content: space-around;
+}
+.route-mode-selector label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.route-list-container { flex: 1; overflow-y: auto; margin-top: 4px; min-height: 50px; }
+.route-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.route-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 8px 10px; border-radius: 6px; border: 1px solid #e5e7eb; font-size: 13px; }
+.badge { background: #2563eb; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; margin-right: 8px; flex-shrink: 0; }
+
+.item-actions { display: flex; gap: 4px; align-items: center; }
+.btn-action { background: #e5e7eb; color: #374151; border: none; border-radius: 4px; width: 28px; height: 28px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-delete { background: #fee2e2; color: #ef4444; }
+
+.btn-group { display: flex; gap: 8px; margin-top: 2px; }
+button.btn-main { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
+.btn-primary { background: #059669; color: white; }
+.btn-primary:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
+.btn-clear { background: #ef4444; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; }
+
+.btn-backup-group { display: flex; gap: 4px; align-items: center; }
+.btn-backup { background: #4b5563; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
+.btn-restore { background: #2563eb; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; display: inline-block; }
+
+.marker-pin { width: 24px; height: 36px; }
+
+/* SNSシェアモーダル用スタイル */
+.share-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
+  z-index: 10000; padding: 16px; box-sizing: border-box;
+  pointer-events: auto;
+}
+.share-modal-content {
+  background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+  position: relative; z-index: 10001;
+}
+/* カード画像のデザイン (ネイビー×エメラルドグリーン) */
+#shareCard {
+  background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
+  text-align: left; font-family: sans-serif; color: #0f172a; margin: 12px 0;
+}
+.card-header {
+  background: linear-gradient(135deg, #1e3a8a, #059669); color: white;
+  padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 12px;
+}
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;
+}
+.card-img-item {
+  width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;
+}
+.card-footer {
+  border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
+}
