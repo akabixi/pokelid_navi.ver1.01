@@ -1,614 +1,158 @@
-// 地方と都道府県の対応マッピング
-const regionPrefMap = {
-  hokkaido: ["北海道"],
-  touhoku: ["青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"],
-  kanto: ["茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県"],
-  chubu: ["新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県"],
-  kansai: ["三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県"],
-  chugoku: ["鳥取県", "島根県", "岡山県", "広島県", "山口県"],
-  shikoku: ["徳島県", "香川県", "愛媛県", "高知県"],
-  kyushu: ["福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"]
-};
-
-let rawSpotData = {}; // spots.json から非同期読み込み
-let map;
-let markers = {};
-let selectedRoute = [];
-let visitedStatus = {};
-let currentActiveSpot = null;
-let db;
-let selectedPrefs = new Set();
-
-const STORAGE_KEY_VISITED = 'pokefuta_visited_status';
-const STORAGE_KEY_REGION = 'pokefuta_last_region';
-
-// IndexedDBの初期化（画像保存用）
-function initDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open("PokefutaPhotoDB", 1);
-    request.onupgradeneeded = (e) => {
-      db = e.target.result;
-      if (!db.objectStoreNames.contains("photos")) {
-        db.createObjectStore("photos", { keyPath: "id" });
-      }
-    };
-    request.onsuccess = (e) => {
-      db = e.target.result;
-      resolve(db);
-    };
-    request.onerror = (e) => reject(e);
-  });
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  -webkit-tap-highlight-color: transparent; /* タップ時のグレー枠を非表示 */
+}
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+  background: #f3f4f6; 
+  height: 100vh;
+  height: 100dvh; /* iOS Safari用：動的ツールバー対応 */
+  display: flex; 
+  flex-direction: column; 
+  overflow: hidden; 
 }
 
-// 写真保存
-function savePhotoDB(id, dataUrl) {
-  if (!db) return;
-  const tx = db.transaction("photos", "readwrite");
-  tx.objectStore("photos").put({ id: id, image: dataUrl });
+header { 
+  background: #1e3a8a; 
+  color: white; 
+  padding: 10px 12px; 
+  padding-top: calc(10px + env(safe-area-inset-top)); /* ノッチ・ステータスバー対策 */
+  display: flex; 
+  gap: 8px; 
+  align-items: center; 
+  justify-content: space-between; 
+  z-index: 10; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+  flex-wrap: wrap; 
+}
+header h1 { font-size: 16px; font-weight: bold; }
+
+.filter-group { display: flex; gap: 6px; align-items: center; position: relative; flex-wrap: wrap; }
+select { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; }
+
+/* 都道府県マルチセレクトUI */
+.pref-dropdown { position: relative; }
+.pref-dropdown-btn { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.pref-dropdown-content { display: none; position: absolute; right: 0; top: 110%; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 8px; max-height: 250px; overflow-y: auto; z-index: 100; min-width: 160px; color: #374151; }
+.pref-dropdown-content.show { display: block; }
+.pref-item { display: flex; align-items: center; gap: 6px; padding: 4px 6px; font-size: 13px; cursor: pointer; }
+.pref-item:hover { background: #f3f4f6; border-radius: 4px; }
+.pref-actions { display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 6px; font-size: 11px; }
+.pref-action-btn { background: none; border: none; color: #2563eb; font-weight: bold; cursor: pointer; }
+
+#map { flex: 1; width: 100%; z-index: 1; }
+
+/* ミニウィンドウ（モーダル）スタイル */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+.modal-card { background: white; width: 90%; max-width: 340px; border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; position: relative; max-height: 80vh; overflow-y: auto; }
+.modal-close { position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 20px; font-weight: bold; color: #9ca3af; cursor: pointer; }
+
+.spot-title { font-weight: bold; font-size: 16px; color: #1f2937; margin-bottom: 2px; }
+.spot-pref { color: #6b7280; font-size: 12px; margin-bottom: 12px; }
+
+/* 写真表示枠 */
+.photo-container { width: 160px; height: 160px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid #e5e7eb; overflow: hidden; background: #f9fafb; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+.photo-img { width: 100%; height: 100%; object-fit: cover; }
+.photo-placeholder { color: #9ca3af; font-size: 11px; padding: 8px; }
+
+.btn-photo-upload { display: inline-block; padding: 6px 12px; background: #4b5563; color: white; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; margin-bottom: 12px; }
+.btn-photo-upload input { display: none; }
+
+.btn-official { display: block; width: 100%; padding: 8px; margin-bottom: 12px; background: #f3f4f6; color: #2563eb; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; font-weight: bold; text-decoration: none; }
+
+.modal-btn-group { display: flex; gap: 8px; }
+.btn-modal { flex: 1; padding: 10px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+.btn-visit { background: #e5e7eb; color: #374151; }
+.btn-visited { background: #059669; color: white; }
+.btn-add-route { background: #2563eb; color: white; }
+
+/* 下部パネル（Safariセーフエリア対応） */
+.control-panel { 
+  background: white; 
+  border-top: 2px solid #e5e7eb; 
+  padding: 12px; 
+  padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* iPhoneホームバー被り防止 */
+  max-height: 40vh; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
+  z-index: 2; 
+}
+.panel-header { display: flex; justify-content: space-between; align-items: center; }
+.panel-title { font-size: 14px; font-weight: bold; color: #374151; }
+
+/* ルートモード選択UI */
+.route-mode-selector {
+  display: flex;
+  gap: 12px;
+  background: #f3f4f6;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #374151;
+  align-items: center;
+  justify-content: space-around;
+}
+.route-mode-selector label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
 }
 
-// 写真取得
-function getPhotoDB(id) {
-  return new Promise((resolve) => {
-    if (!db) return resolve(null);
-    const tx = db.transaction("photos", "readonly");
-    const request = tx.objectStore("photos").get(id);
-    request.onsuccess = () => resolve(request.result ? request.result.image : null);
-    request.onerror = () => resolve(null);
-  });
+.route-list-container { flex: 1; overflow-y: auto; margin-top: 4px; min-height: 50px; }
+.route-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.route-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 8px 10px; border-radius: 6px; border: 1px solid #e5e7eb; font-size: 13px; }
+.badge { background: #2563eb; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; margin-right: 8px; flex-shrink: 0; }
+
+.item-actions { display: flex; gap: 4px; align-items: center; }
+.btn-action { background: #e5e7eb; color: #374151; border: none; border-radius: 4px; width: 28px; height: 28px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-delete { background: #fee2e2; color: #ef4444; }
+
+.btn-group { display: flex; gap: 8px; margin-top: 2px; }
+button.btn-main { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
+.btn-primary { background: #059669; color: white; }
+.btn-primary:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
+.btn-clear { background: #ef4444; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; }
+
+.btn-backup-group { display: flex; gap: 4px; align-items: center; }
+.btn-backup { background: #4b5563; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
+.btn-restore { background: #2563eb; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; display: inline-block; }
+
+.marker-pin { width: 24px; height: 36px; }
+
+/* SNSシェアモーダル用スタイル */
+.share-modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
+  z-index: 10000; padding: 16px; box-sizing: border-box;
+  pointer-events: auto;
 }
-
-function createIcon(colorHex) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" class="marker-pin"><path fill="${colorHex}" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z"/><circle cx="12" cy="12" r="5" fill="#FFFFFF"/></svg>`;
-  return L.divIcon({
-    className: '',
-    html: svg,
-    iconSize: [24, 36],
-    iconAnchor: [12, 36]
-  });
+.share-modal-content {
+  background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+  position: relative; z-index: 10001;
 }
-
-const blueIcon = createIcon("#2563EB");  // 未訪問：青
-const greenIcon = createIcon("#059669"); // 訪問済：緑
-
-async function init() {
-  await initDB();
-  
-  // ★spots.json の非同期取得★
-  try {
-    const res = await fetch('spots.json');
-    rawSpotData = await res.json();
-  } catch (err) {
-    console.error("spots.json の読み込みに失敗しました:", err);
-  }
-
-  loadSettings();
-
-  map = L.map('map').setView([38.5, 140.5], 7);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.pref-dropdown')) {
-      document.getElementById('prefDropdownContent').classList.remove('show');
-    }
-  });
-
-  handleRegionChange(false);
-  updateRouteUI();
+/* カード画像のデザイン (ネイビー×エメラルドグリーン) */
+#shareCard {
+  background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
+  text-align: left; font-family: sans-serif; color: #0f172a; margin: 12px 0;
 }
-
-function loadSettings() {
-  const savedVisited = localStorage.getItem(STORAGE_KEY_VISITED);
-  visitedStatus = savedVisited ? JSON.parse(savedVisited) : {};
-
-  const savedRegion = localStorage.getItem(STORAGE_KEY_REGION);
-  if (savedRegion) {
-    document.getElementById('regionSelect').value = savedRegion;
-  }
+.card-header {
+  background: linear-gradient(135deg, #1e3a8a, #059669); color: white;
+  padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 12px;
 }
-
-function saveSettings() {
-  localStorage.setItem(STORAGE_KEY_VISITED, JSON.stringify(visitedStatus));
-  localStorage.setItem(STORAGE_KEY_REGION, document.getElementById('regionSelect').value);
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;
 }
-
-function handleRegionChange(isUserAction) {
-  const region = document.getElementById('regionSelect').value;
-  const checkboxContainer = document.getElementById('prefCheckboxList');
-  checkboxContainer.innerHTML = '';
-  selectedPrefs.clear();
-
-  let availablePrefs = [];
-  if (region === 'all') {
-    Object.values(regionPrefMap).forEach(prefs => availablePrefs.push(...prefs));
-  } else if (regionPrefMap[region]) {
-    availablePrefs = regionPrefMap[region];
-  }
-
-  availablePrefs.forEach(pref => {
-    selectedPrefs.add(pref);
-    const label = document.createElement('label');
-    label.className = 'pref-item';
-    label.innerHTML = `
-      <input type="checkbox" value="${pref}" checked onchange="handlePrefCheckboxChange()">
-      <span>${pref}</span>
-    `;
-    checkboxContainer.appendChild(label);
-  });
-
-  updatePrefDropdownBtnText();
-  renderMarkers(isUserAction);
+.card-img-item {
+  width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;
 }
-
-function togglePrefDropdown() {
-  document.getElementById('prefDropdownContent').classList.toggle('show');
+.card-footer {
+  border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
 }
-
-function handlePrefCheckboxChange() {
-  const checkboxes = document.querySelectorAll('#prefCheckboxList input[type="checkbox"]');
-  selectedPrefs.clear();
-  checkboxes.forEach(cb => {
-    if (cb.checked) selectedPrefs.add(cb.value);
-  });
-
-  updatePrefDropdownBtnText();
-  renderMarkers(false);
-}
-
-function selectAllPrefs(selectAll) {
-  const checkboxes = document.querySelectorAll('#prefCheckboxList input[type="checkbox"]');
-  checkboxes.forEach(cb => {
-    cb.checked = selectAll;
-  });
-  handlePrefCheckboxChange();
-}
-
-function updatePrefDropdownBtnText() {
-  const btnText = document.getElementById('prefDropdownText');
-  const totalCount = document.querySelectorAll('#prefCheckboxList input[type="checkbox"]').length;
-  
-  if (selectedPrefs.size === 0) {
-    btnText.innerText = "選択なし";
-  } else if (selectedPrefs.size === totalCount) {
-    btnText.innerText = "すべての県";
-  } else {
-    btnText.innerText = `${selectedPrefs.size}件 選択中`;
-  }
-}
-
-function renderMarkers(isUserAction) {
-  const region = document.getElementById('regionSelect').value;
-  const searchText = document.getElementById('pokemonSearch') ? document.getElementById('pokemonSearch').value.trim().toLowerCase() : '';
-
-  Object.values(markers).forEach(m => map.removeLayer(m));
-  markers = {};
-
-  if (isUserAction) clearSelected();
-
-  let targetSpots = [];
-  if (region === 'all') {
-    Object.values(rawSpotData).forEach(spots => {
-      targetSpots.push(...spots);
-    });
-  } else if (rawSpotData[region]) {
-    targetSpots = rawSpotData[region];
-  }
-
-  targetSpots = targetSpots.filter(spot => {
-    const matchPref = Array.from(selectedPrefs).some(pref => spot.pref.includes(pref));
-    const matchPokemon = searchText === '' || spot.name.toLowerCase().includes(searchText);
-    return matchPref && matchPokemon;
-  });
-
-  if (targetSpots.length === 0) return;
-
-  const bounds = [];
-  targetSpots.forEach(spot => {
-    const isVisited = visitedStatus[spot.id] || false;
-    const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
-    
-    const marker = L.marker([spot.lat, spot.lng], {
-      icon: isVisitedBool ? greenIcon : blueIcon
-    }).addTo(map);
-    
-    marker.on('click', () => openModal(spot));
-    
-    markers[spot.id] = marker;
-    bounds.push([spot.lat, spot.lng]);
-  });
-
-  map.fitBounds(bounds, { padding: [30, 30] });
-  if (isUserAction) saveSettings();
-}
-
-async function openModal(spot) {
-  currentActiveSpot = spot;
-  
-  document.getElementById('modalTitle').innerText = spot.name;
-  document.getElementById('modalPref').innerText = spot.pref;
-  document.getElementById('modalOfficialLink').href = spot.officialUrl || "https://local.pokemon.jp/manhole/";
-
-  const isVisited = visitedStatus[spot.id] || false;
-  const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
-  const vBtn = document.getElementById('modalVisitBtn');
-  if (isVisitedBool) {
-    vBtn.innerText = "✓ 訪問済";
-    vBtn.className = "btn-modal btn-visited";
-  } else {
-    vBtn.innerText = "訪問済みにする";
-    vBtn.className = "btn-modal btn-visit";
-  }
-
-  const savedPhoto = await getPhotoDB(spot.id);
-  const imgEl = document.getElementById('photoImg');
-  const placeholderEl = document.getElementById('photoPlaceholder');
-
-  if (savedPhoto) {
-    imgEl.src = savedPhoto;
-    imgEl.style.display = 'block';
-    placeholderEl.style.display = 'none';
-  } else {
-    imgEl.style.display = 'none';
-    placeholderEl.style.display = 'block';
-  }
-
-  document.getElementById('photoModal').style.display = 'flex';
-}
-
-function closeModal() {
-  document.getElementById('photoModal').style.display = 'none';
-  currentActiveSpot = null;
-}
-
-function handlePhotoUpload(event) {
-  const file = event.target.files[0];
-  if (!file || !currentActiveSpot) return;
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    
-    const imgEl = document.getElementById('photoImg');
-    const placeholderEl = document.getElementById('photoPlaceholder');
-    imgEl.src = dataUrl;
-    imgEl.style.display = 'block';
-    placeholderEl.style.display = 'none';
-
-    savePhotoDB(currentActiveSpot.id, dataUrl);
-  };
-  reader.readAsDataURL(file);
-}
-
-function toggleVisitedCurrent() {
-  if (!currentActiveSpot) return;
-  const id = currentActiveSpot.id;
-  const todayKey = new Date().toISOString().slice(0, 10);
-  
-  const currentVal = visitedStatus[id];
-  const isCurrentlyVisited = typeof currentVal === 'object' ? currentVal.visited : !!currentVal;
-
-  if (!isCurrentlyVisited) {
-    visitedStatus[id] = { visited: true, date: todayKey };
-  } else {
-    visitedStatus[id] = { visited: false, date: todayKey };
-  }
-
-  const isVisited = visitedStatus[id].visited;
-
-  if (markers[id]) {
-    markers[id].setIcon(isVisited ? greenIcon : blueIcon);
-  }
-
-  const vBtn = document.getElementById('modalVisitBtn');
-  if (isVisited) {
-    vBtn.innerText = "✓ 訪問済";
-    vBtn.className = "btn-modal btn-visited";
-  } else {
-    vBtn.innerText = "未訪問にする";
-    vBtn.className = "btn-modal btn-visit";
-  }
-
-  saveSettings();
-}
-
-function addToRouteCurrent() {
-  if (!currentActiveSpot) return;
-  addToRoute(currentActiveSpot);
-  closeModal();
-}
-
-function addToRoute(spot) {
-  if (!selectedRoute.some(s => s.id === spot.id)) {
-    selectedRoute.push(spot);
-    updateRouteUI();
-  }
-}
-
-function moveRouteItem(index, direction) {
-  const targetIndex = index + direction;
-  if (targetIndex < 0 || targetIndex >= selectedRoute.length) return;
-  
-  const temp = selectedRoute[index];
-  selectedRoute[index] = selectedRoute[targetIndex];
-  selectedRoute[targetIndex] = temp;
-  
-  updateRouteUI();
-}
-
-function removeRouteItem(index) {
-  selectedRoute.splice(index, 1);
-  updateRouteUI();
-}
-
-function updateRouteUI() {
-  const listEl = document.getElementById('routeList');
-  const navBtn = document.getElementById('navBtn');
-
-  if (selectedRoute.length === 0) {
-    listEl.innerHTML = '<li style="color:#9ca3af; font-size:12px; text-align:center; padding:12px 8px;">マップ上のピンをタップし「ルートに追加」してください。</li>';
-    navBtn.disabled = true;
-    return;
-  }
-
-  listEl.innerHTML = '';
-  selectedRoute.forEach((spot, idx) => {
-    const li = document.createElement('li');
-    li.className = 'route-item';
-    li.innerHTML = `
-      <div style="display:flex; align-items:center; overflow:hidden;">
-        <span class="badge">${idx + 1}</span>
-        <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-          <div style="font-weight:bold; overflow:hidden; text-overflow:ellipsis;">${spot.name}</div>
-          <div style="font-size:11px; color:#6b7280;">${spot.pref}</div>
-        </div>
-      </div>
-      <div class="item-actions">
-        <button class="btn-action" onclick="moveRouteItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>▲</button>
-        <button class="btn-action" onclick="moveRouteItem(${idx}, 1)" ${idx === selectedRoute.length - 1 ? 'disabled' : ''}>▼</button>
-        <button class="btn-action btn-delete" onclick="removeRouteItem(${idx})">✕</button>
-      </div>
-    `;
-    listEl.appendChild(li);
-  });
-
-  navBtn.disabled = false;
-}
-
-function clearSelected() {
-  selectedRoute = [];
-  updateRouteUI();
-}
-
-function openGoogleMaps() {
-  if (selectedRoute.length === 0) return;
-
-  const mode = document.querySelector('input[name="routeMode"]:checked').value;
-  const lastSpot = selectedRoute[selectedRoute.length - 1];
-  const destination = `${lastSpot.lat},${lastSpot.lng}`;
-
-  let url = '';
-
-  if (mode === 'current') {
-    let waypoints = '';
-    if (selectedRoute.length > 1) {
-      const waypointsList = selectedRoute.slice(0, -1);
-      waypoints = '&waypoints=' + waypointsList.map(s => `${s.lat},${s.lng}`).join('|');
-    }
-    url = `https://www.google.com/maps/dir/?api=1&destination=${destination}${waypoints}&travelmode=driving`;
-
-  } else {
-    const firstSpot = selectedRoute[0];
-    const origin = `${firstSpot.lat},${firstSpot.lng}`;
-
-    let waypoints = '';
-    if (selectedRoute.length > 2) {
-      const waypointsList = selectedRoute.slice(1, -1);
-      waypoints = '&waypoints=' + waypointsList.map(s => `${s.lat},${s.lng}`).join('|');
-    }
-    url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypoints}&travelmode=driving`;
-  }
-
-  window.open(url, '_blank');
-}
-
-async function exportBackupData() {
-  if (!db) {
-    alert("データベース準備中です。少し待ってから再試行してください。");
-    return;
-  }
-
-  const photos = await new Promise((resolve) => {
-    const tx = db.transaction("photos", "readonly");
-    const request = tx.objectStore("photos").getAll();
-    request.onsuccess = () => resolve(request.result || []);
-    request.onerror = () => resolve([]);
-  });
-
-  const backupObj = {
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    visitedStatus: visitedStatus,
-    lastRegion: document.getElementById('regionSelect').value,
-    photos: photos
-  };
-
-  const jsonStr = JSON.stringify(backupObj);
-  const blob = new Blob([jsonStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `pokefuta_backup_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function importBackupData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-
-      if (!data.visitedStatus) {
-        alert("無効なバックアップファイルです。");
-        return;
-      }
-
-      if (!confirm("現在の保存データが上書きされます。復元を実行しますか？")) {
-        return;
-      }
-
-      visitedStatus = data.visitedStatus || {};
-      saveSettings();
-
-      if (data.photos && Array.isArray(data.photos) && db) {
-        const tx = db.transaction("photos", "readwrite");
-        const store = tx.objectStore("photos");
-        store.clear();
-        data.photos.forEach(p => store.put(p));
-      }
-
-      handleRegionChange(false);
-      alert("データの復元が完了しました！");
-    } catch (err) {
-      alert("ファイルの読み込みエラーが発生しました。");
-      console.error(err);
-    }
-  };
-  reader.readAsText(file);
-  event.target.value = "";
-}
-
-function updateCardMemo() {
-  const memoInput = document.getElementById('shareMemoInput');
-  const memoText = memoInput ? memoInput.value.trim() : '';
-  const memoEl = document.getElementById('shareCardMemo');
-  
-  if (memoEl) {
-    if (memoText) {
-      memoEl.innerText = '“ ' + memoText + ' ”';
-      memoEl.style.display = 'block';
-    } else {
-      memoEl.innerText = '';
-      memoEl.style.display = 'none';
-    }
-  }
-}
-
-async function openShareModal() {
-  const today = new Date();
-  const todayStr = today.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
-  const todayKey = today.toISOString().slice(0, 10);
-  
-  document.getElementById('shareCardDate').innerText = todayStr;
-  
-  if (document.getElementById('shareMemoInput')) {
-    document.getElementById('shareMemoInput').value = '';
-  }
-  const memoEl = document.getElementById('shareCardMemo');
-  if (memoEl) {
-    memoEl.innerText = '';
-    memoEl.style.display = 'none';
-  }
-
-  const contentArea = document.getElementById('shareCardContent');
-  contentArea.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">データを読み込み中...</div>';
-  
-  let todaySpots = [];
-  let todayPhotos = [];
-
-  try {
-    for (const regionKey in rawSpotData) {
-      const spots = rawSpotData[regionKey];
-      for (const spot of spots) {
-        const status = visitedStatus[spot.id];
-        
-        if (status) {
-          const isVisited = typeof status === 'object' ? status.visited : !!status;
-          const visitDate = typeof status === 'object' ? status.date : todayKey;
-
-          if (isVisited && visitDate === todayKey) {
-            const photoData = await getPhotoDB(spot.id);
-            if (photoData) {
-              todayPhotos.push({ name: spot.name, img: photoData });
-            }
-            todaySpots.push(spot.name);
-          }
-        }
-      }
-    }
-  } catch (e) {
-    console.error("データ取得エラー:", e);
-  }
-
-  contentArea.innerHTML = '';
-
-  if (todayPhotos.length > 0) {
-    const grid = document.createElement('div');
-    grid.className = 'card-grid';
-    
-    todayPhotos.forEach(item => {
-      const imgWrap = document.createElement('div');
-      imgWrap.style.position = 'relative';
-      imgWrap.innerHTML = 
-        '<img src="' + item.img + '" class="card-img-item">' +
-        '<div style="position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:9px; padding:2px 4px; border-radius:3px; max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' +
-          item.name +
-        '</div>';
-      grid.appendChild(imgWrap);
-    });
-    contentArea.appendChild(grid);
-
-  } else if (todaySpots.length > 0) {
-    let listHtml = '<div style="padding: 10px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155; width: 100%; box-sizing: border-box;">' +
-      '<b style="display: block; width: 100%; white-space: nowrap;">📍 本日訪問したポケふた (' + todaySpots.length + '箇所)</b>' +
-      '<ul style="margin: 6px 0 0 18px; padding: 0; width: 100%;">';
-    
-    todaySpots.forEach(name => {
-      listHtml += '<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin-bottom: 2px;">' + name + '</li>';
-    });
-    listHtml += '</ul></div>';
-    contentArea.innerHTML = listHtml;
-
-  } else {
-    contentArea.innerHTML = '<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>';
-  }
-
-  document.getElementById('shareCardCount').innerText = '本日訪問: ' + todaySpots.length + '箇所';
-  document.getElementById('shareModal').style.display = 'flex';
-}
-
-function closeShareModal() {
-  const modal = document.getElementById('shareModal');
-  const preview = document.getElementById('previewArea');
-  if (modal) modal.style.display = 'none';
-  if (preview) preview.style.display = 'none';
-}
-
-function generateCardImage() {
-  const cardElem = document.getElementById('shareCard');
-  html2canvas(cardElem, { scale: 2, useCORS: true }).then(canvas => {
-    const imgData = canvas.toDataURL('image/png');
-    const imgElem = document.getElementById('generatedImg');
-    imgElem.src = imgData;
-    document.getElementById('previewArea').style.display = 'block';
-  });
-}
-
-function postToX() {
-  const countText = document.getElementById('shareCardCount').innerText;
-  const memoInput = document.getElementById('shareMemoInput');
-  const memoText = memoInput ? memoInput.value.trim() : '';
-  const memoFormatted = memoText ? '\n💬 ' + memoText + '\n' : '';
-  
-  const text = encodeURIComponent('今日のポケふた巡り完了！\n' + countText + '！📸' + memoFormatted + '\n#ポケふた #ポケふたナビ\n');
-  const url = encodeURIComponent('https://akabixi.github.io/pokelid_navi.ver1.01/');
-  window.open('https://x.com/intent/tweet?text=' + text + '&url=' + url, '_blank');
-}
-
-window.onload = init;
