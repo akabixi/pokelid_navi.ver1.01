@@ -74,12 +74,17 @@ const greenIcon = createIcon("#059669"); // 訪問済：緑
 async function init() {
   await initDB();
   
-  // ★spots.json の非同期取得★
+  // ★spots.json の非同期取得（安全・エラー対策版）★
   try {
-    const res = await fetch('spots.json');
+    const res = await fetch('./spots.json'); // 同階層を明示指定
+    if (!res.ok) {
+      throw new Error(`HTTPエラー Status: ${res.status}`);
+    }
     rawSpotData = await res.json();
+    console.log("spots.json 読み込み成功:", Object.keys(rawSpotData).length + " 地方のデータを読み込みました");
   } catch (err) {
     console.error("spots.json の読み込みに失敗しました:", err);
+    alert("スポットデータの読み込みに失敗しました。ページを再読み込みしてください。");
   }
 
   loadSettings();
@@ -91,7 +96,8 @@ async function init() {
 
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.pref-dropdown')) {
-      document.getElementById('prefDropdownContent').classList.remove('show');
+      const dropdown = document.getElementById('prefDropdownContent');
+      if (dropdown) dropdown.classList.remove('show');
     }
   });
 
@@ -105,19 +111,26 @@ function loadSettings() {
 
   const savedRegion = localStorage.getItem(STORAGE_KEY_REGION);
   if (savedRegion) {
-    document.getElementById('regionSelect').value = savedRegion;
+    const regionSelect = document.getElementById('regionSelect');
+    if (regionSelect) regionSelect.value = savedRegion;
   }
 }
 
 function saveSettings() {
   localStorage.setItem(STORAGE_KEY_VISITED, JSON.stringify(visitedStatus));
-  localStorage.setItem(STORAGE_KEY_REGION, document.getElementById('regionSelect').value);
+  const regionSelect = document.getElementById('regionSelect');
+  if (regionSelect) {
+    localStorage.setItem(STORAGE_KEY_REGION, regionSelect.value);
+  }
 }
 
 function handleRegionChange(isUserAction) {
-  const region = document.getElementById('regionSelect').value;
+  const regionSelect = document.getElementById('regionSelect');
+  if (!regionSelect) return;
+  
+  const region = regionSelect.value;
   const checkboxContainer = document.getElementById('prefCheckboxList');
-  checkboxContainer.innerHTML = '';
+  if (checkboxContainer) checkboxContainer.innerHTML = '';
   selectedPrefs.clear();
 
   let availablePrefs = [];
@@ -127,23 +140,26 @@ function handleRegionChange(isUserAction) {
     availablePrefs = regionPrefMap[region];
   }
 
-  availablePrefs.forEach(pref => {
-    selectedPrefs.add(pref);
-    const label = document.createElement('label');
-    label.className = 'pref-item';
-    label.innerHTML = `
-      <input type="checkbox" value="${pref}" checked onchange="handlePrefCheckboxChange()">
-      <span>${pref}</span>
-    `;
-    checkboxContainer.appendChild(label);
-  });
+  if (checkboxContainer) {
+    availablePrefs.forEach(pref => {
+      selectedPrefs.add(pref);
+      const label = document.createElement('label');
+      label.className = 'pref-item';
+      label.innerHTML = `
+        <input type="checkbox" value="${pref}" checked onchange="handlePrefCheckboxChange()">
+        <span>${pref}</span>
+      `;
+      checkboxContainer.appendChild(label);
+    });
+  }
 
   updatePrefDropdownBtnText();
   renderMarkers(isUserAction);
 }
 
 function togglePrefDropdown() {
-  document.getElementById('prefDropdownContent').classList.toggle('show');
+  const dropdown = document.getElementById('prefDropdownContent');
+  if (dropdown) dropdown.classList.toggle('show');
 }
 
 function handlePrefCheckboxChange() {
@@ -167,6 +183,8 @@ function selectAllPrefs(selectAll) {
 
 function updatePrefDropdownBtnText() {
   const btnText = document.getElementById('prefDropdownText');
+  if (!btnText) return;
+  
   const totalCount = document.querySelectorAll('#prefCheckboxList input[type="checkbox"]').length;
   
   if (selectedPrefs.size === 0) {
@@ -179,26 +197,37 @@ function updatePrefDropdownBtnText() {
 }
 
 function renderMarkers(isUserAction) {
-  const region = document.getElementById('regionSelect').value;
+  if (!map) return;
+  
+  const regionSelect = document.getElementById('regionSelect');
+  const region = regionSelect ? regionSelect.value : 'all';
   const searchText = document.getElementById('pokemonSearch') ? document.getElementById('pokemonSearch').value.trim().toLowerCase() : '';
 
+  // 既存ピンの消去
   Object.values(markers).forEach(m => map.removeLayer(m));
   markers = {};
 
   if (isUserAction) clearSelected();
 
+  // ★データ未ロード安全対策★
+  if (!rawSpotData || Object.keys(rawSpotData).length === 0) {
+    console.warn("データがまだ読み込まれていません");
+    return;
+  }
+
   let targetSpots = [];
   if (region === 'all') {
     Object.values(rawSpotData).forEach(spots => {
-      targetSpots.push(...spots);
+      if (Array.isArray(spots)) targetSpots.push(...spots);
     });
   } else if (rawSpotData[region]) {
     targetSpots = rawSpotData[region];
   }
 
+  // 二重フィルター（都道府県 ＆ ポケモン名）
   targetSpots = targetSpots.filter(spot => {
-    const matchPref = Array.from(selectedPrefs).some(pref => spot.pref.includes(pref));
-    const matchPokemon = searchText === '' || spot.name.toLowerCase().includes(searchText);
+    const matchPref = Array.from(selectedPrefs).some(pref => spot.pref && spot.pref.includes(pref));
+    const matchPokemon = searchText === '' || (spot.name && spot.name.toLowerCase().includes(searchText));
     return matchPref && matchPokemon;
   });
 
@@ -219,7 +248,9 @@ function renderMarkers(isUserAction) {
     bounds.push([spot.lat, spot.lng]);
   });
 
-  map.fitBounds(bounds, { padding: [30, 30] });
+  if (bounds.length > 0) {
+    map.fitBounds(bounds, { padding: [30, 30] });
+  }
   if (isUserAction) saveSettings();
 }
 
@@ -525,19 +556,21 @@ async function openShareModal() {
   try {
     for (const regionKey in rawSpotData) {
       const spots = rawSpotData[regionKey];
-      for (const spot of spots) {
-        const status = visitedStatus[spot.id];
-        
-        if (status) {
-          const isVisited = typeof status === 'object' ? status.visited : !!status;
-          const visitDate = typeof status === 'object' ? status.date : todayKey;
+      if (Array.isArray(spots)) {
+        for (const spot of spots) {
+          const status = visitedStatus[spot.id];
+          
+          if (status) {
+            const isVisited = typeof status === 'object' ? status.visited : !!status;
+            const visitDate = typeof status === 'object' ? status.date : todayKey;
 
-          if (isVisited && visitDate === todayKey) {
-            const photoData = await getPhotoDB(spot.id);
-            if (photoData) {
-              todayPhotos.push({ name: spot.name, img: photoData });
+            if (isVisited && visitDate === todayKey) {
+              const photoData = await getPhotoDB(spot.id);
+              if (photoData) {
+                todayPhotos.push({ name: spot.name, img: photoData });
+              }
+              todaySpots.push(spot.name);
             }
-            todaySpots.push(spot.name);
           }
         }
       }
