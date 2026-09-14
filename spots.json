@@ -1,5 +1,5 @@
 {
-  "hokkaido": [
+ "hokkaido": [
     { "id": 1, "name": "石狩市（ロコン・ナエトル）", "pref": "北海道 石狩市（石狩市浜益区実田254-4）", "lat": 43.585848, "lng": 141.423898, "officialUrl": "https://local.pokemon.jp/manhole/desc/59/" },
     { "id": 2, "name": "恵庭市（ロコン）", "pref": "北海道 恵庭市（恵庭市南島松829番地3）", "lat": 42.897132, "lng": 141.585789, "officialUrl": "https://local.pokemon.jp/manhole/desc/60/" },
     { "id": 3, "name": "洞爺湖町（ウリムー・ロコン）", "pref": "北海道 洞爺湖町（洞爺湖町洞爺湖温泉224）", "lat": 42.566111, "lng": 140.819072, "officialUrl": "https://local.pokemon.jp/manhole/desc/61/" },
@@ -40,7 +40,7 @@
     { "id": 38, "name": "歌志内市（アローラロコン・ロコン・バチュル）", "pref": "北海道 歌志内市（歌志内市字中村72番地2）", "lat": 43.503206, "lng": 142.005914, "officialUrl": "https://local.pokemon.jp/manhole/desc/304/" },
     { "id": 39, "name": "木古内町（アローラロコン・ロコン・ヒメンカ）", "pref": "北海道 木古内町（木古内町字本町338-14）", "lat": 41.678024, "lng": 140.43558, "officialUrl": "https://local.pokemon.jp/manhole/desc/305/" },
     { "id": 40, "name": "猿払村（アローラロコン・ロコン・エイパム）", "pref": "北海道 猿払村（猿払村浜鬼志別214-7）", "lat": 45.329186, "lng": 142.177267, "officialUrl": "https://local.pokemon.jp/manhole/desc/306/" },
-    { "id": 41, "name": "美幌町（アローラロコン・ロコン・ハネッコ）", "pref": "北海道 美幌町（美幌町字新町3丁目97）", "lat: 43.836455, "lng": 144.105878, "officialUrl": "https://local.pokemon.jp/manhole/desc/307/" },
+    { "id": 41, "name": "美幌町（アローラロコン・ロコン・ハネッコ）", "pref": "北海道 美幌町（美幌町字新町3丁目97）", "lat": 43.836455, "lng": 144.105878, "officialUrl": "https://local.pokemon.jp/manhole/desc/307/" },
     { "id": 42, "name": "美瑛町（アローラロコン・ヒスイウォーグル）", "pref": "北海道 美瑛町（本町1丁目9番21号）", "lat": 43.59198, "lng": 142.46372, "officialUrl": "https://local.pokemon.jp/manhole/desc/324/" },
     { "id": 43, "name": "札幌市（ロコン・ケッキング）", "pref": "北海道 札幌市（南区定山渓温泉東３丁目212）", "lat": 42.9661562, "lng": 141.1669585, "officialUrl": "https://local.pokemon.jp/manhole/desc/438/" },
     { "id": 44, "name": "砂川市（アローラロコン・ロコン・ペロリーム）", "pref": "北海道 砂川市（西１条北２丁目１番２０号）", "lat": 43.493037, "lng": 141.907367, "officialUrl": "https://local.pokemon.jp/manhole/desc/439/" },
