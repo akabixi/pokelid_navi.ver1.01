@@ -3,37 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- 検索エンジン向け基本タグ -->
   <title>ポケふたナビ | 全国ポケふたマップ＆ルート作成・アルバムアプリ</title>
-  <meta name="description" content="全国すべての「ポケふた（ポケモンマンホール）」を網羅したマップアプリ。現在地や都道府県からの検索、訪問記録・My写真アルバム保存、Googleマップと連携した巡回ルート作成が可能です。">
+  <meta name="description" content="全国500箇所以上の「ポケふた（ポケモンマンホール）」を網羅したマップアプリ。現在地や都道府県からの検索、訪問記録・My写真アルバム保存、Googleマップと連携した巡回ルート作成が可能です。">
   <meta name="keywords" content="ポケふた,ポケモンマンホール,マップ,ルート作成,ポケモン,ポケふたナビ,聖地巡礼">
   <meta name="google-site-verification" content="xvEs3zlDDPK7tVgnEXKixuYRCCNv1DrYrcPiphW0jd4" />
-  <!-- SNSシェア用（OGPタグ） -->
+  
   <meta property="og:title" content="ポケふたナビ | 全国のポケふた巡りをサポート">
   <meta property="og:description" content="全国のポケふたを効率よく巡ろう！訪問記録や写真アルバム、Googleマップ連携ルート作成機能を搭載。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://akabixi.github.io/pokelid_navi.ver1.01/">
-  <!-- html2canvasライブラリ（画面を画像変換するライブラリ） -->
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <!-- iPhone / iPad ホーム画面用 -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="referrer" content="no-referrer-when-downgrade">
-  <!-- Android / PCブラウザ用 -->
   <link rel="icon" type="image/png" href="apple-touch-icon.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <style>
     * { 
       box-sizing: border-box; 
       margin: 0; 
       padding: 0; 
-      -webkit-tap-highlight-color: transparent; /* タップ時のグレー枠を非表示 */
+      -webkit-tap-highlight-color: transparent; 
     }
     body { 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
       background: #f3f4f6; 
       height: 100vh;
-      height: 100dvh; /* iOS Safari用：動的ツールバー対応 */
+      height: 100dvh; 
       display: flex; 
       flex-direction: column; 
       overflow: hidden; 
@@ -43,7 +40,7 @@
       background: #1e3a8a; 
       color: white; 
       padding: 10px 12px; 
-      padding-top: calc(10px + env(safe-area-inset-top)); /* ノッチ・ステータスバー対策 */
+      padding-top: calc(10px + env(safe-area-inset-top)); 
       display: flex; 
       gap: 8px; 
       align-items: center; 
@@ -57,7 +54,6 @@
     .filter-group { display: flex; gap: 6px; align-items: center; position: relative; flex-wrap: wrap; }
     select { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; }
 
-    /* 都道府県マルチセレクトUI */
     .pref-dropdown { position: relative; }
     .pref-dropdown-btn { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; display: flex; align-items: center; gap: 4px; }
     .pref-dropdown-content { display: none; position: absolute; right: 0; top: 110%; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 8px; max-height: 250px; overflow-y: auto; z-index: 100; min-width: 160px; color: #374151; }
@@ -69,7 +65,6 @@
 
     #map { flex: 1; width: 100%; z-index: 1; }
 
-    /* ミニウィンドウ（モーダル）スタイル */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
     .modal-card { background: white; width: 90%; max-width: 340px; border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; position: relative; max-height: 80vh; overflow-y: auto; }
     .modal-close { position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 20px; font-weight: bold; color: #9ca3af; cursor: pointer; }
@@ -77,7 +72,6 @@
     .spot-title { font-weight: bold; font-size: 16px; color: #1f2937; margin-bottom: 2px; }
     .spot-pref { color: #6b7280; font-size: 12px; margin-bottom: 12px; }
     
-    /* 写真表示枠 */
     .photo-container { width: 160px; height: 160px; margin: 0 auto 12px; border-radius: 50%; border: 3px solid #e5e7eb; overflow: hidden; background: #f9fafb; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
     .photo-img { width: 100%; height: 100%; object-fit: cover; }
     .photo-placeholder { color: #9ca3af; font-size: 11px; padding: 8px; }
@@ -93,12 +87,11 @@
     .btn-visited { background: #059669; color: white; }
     .btn-add-route { background: #2563eb; color: white; }
 
-    /* 下部パネル（Safariセーフエリア対応） */
     .control-panel { 
       background: white; 
       border-top: 2px solid #e5e7eb; 
       padding: 12px; 
-      padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* iPhoneホームバー被り防止 */
+      padding-bottom: calc(12px + env(safe-area-inset-bottom)); 
       max-height: 40vh; 
       display: flex; 
       flex-direction: column; 
@@ -109,7 +102,6 @@
     .panel-header { display: flex; justify-content: space-between; align-items: center; }
     .panel-title { font-size: 14px; font-weight: bold; color: #374151; }
 
-    /* ルートモード選択UI */
     .route-mode-selector {
       display: flex;
       gap: 12px;
@@ -145,12 +137,53 @@
     .btn-primary:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
     .btn-clear { background: #ef4444; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; }
 
-    /* バックアップ・復元ボタン */
-    .btn-backup-group { display: flex; gap: 4px; align-items: center; }
+    .btn-backup-group { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
     .btn-backup { background: #4b5563; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
     .btn-restore { background: #2563eb; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; display: inline-block; }
+    .btn-save-route { background: #d97706; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
 
     .marker-pin { width: 24px; height: 36px; }
+
+    .share-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
+      z-index: 10000; padding: 16px; box-sizing: border-box;
+      pointer-events: auto;
+    }
+    .share-modal-content {
+      background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+      border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+      position: relative; z-index: 10001;
+    }
+    #shareCard {
+      background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
+      text-align: left; font-family: sans-serif; color: #0f172a; margin: 12px 0;
+    }
+    .card-header {
+      background: linear-gradient(135deg, #1e3a8a, #059669); color: white;
+      padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 12px;
+    }
+    .card-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;
+    }
+    .card-img-item {
+      width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;
+    }
+    .card-footer {
+      border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
+    }
+
+    /* 保存済みルートモーダル用スタイル */
+    .saved-route-item {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 8px; text-align: left;
+    }
+    .saved-route-info { overflow: hidden; margin-right: 8px; }
+    .saved-route-name { font-weight: bold; font-size: 13px; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .saved-route-count { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .saved-route-btns { display: flex; gap: 4px; flex-shrink: 0; }
+    .btn-load-route { background: #2563eb; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .btn-del-route { background: #fee2e2; color: #ef4444; border: none; padding: 6px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -158,10 +191,8 @@
   <header>
     <h1>ポケふたナビ</h1>
     <div class="filter-group">
-      <!-- ★追加：ポケモン名リアルタイム検索欄★ -->
       <input type="text" id="pokemonSearch" placeholder="🔍 ポケモン検索" oninput="renderMarkers(false)" style="padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: bold; width: 120px; color: #1e3a8a;">
 
-      <!-- 1つ目のタブ：全国＋8地方 -->
       <select id="regionSelect" onchange="handleRegionChange(true)">
         <option value="all">全国</option>
         <option value="hokkaido">北海道</option>
@@ -174,7 +205,6 @@
         <option value="kyushu">九州・沖縄</option>
       </select>
 
-      <!-- 2つ目のタブ：都道府県選択（マルチセレクトUI） -->
       <div class="pref-dropdown">
         <button class="pref-dropdown-btn" onclick="togglePrefDropdown()">
           <span id="prefDropdownText">すべての県</span> ▼
@@ -192,7 +222,7 @@
 
   <div id="map"></div>
 
-  <!-- ミニウィンドウ（モーダル） -->
+  <!-- スポット詳細モーダル -->
   <div id="photoModal" class="modal-overlay">
     <div class="modal-card">
       <button class="modal-close" onclick="closeModal()">✕</button>
@@ -218,11 +248,14 @@
     </div>
   </div>
 
+  <!-- 巡回ルート操作パネル -->
   <div class="control-panel">
     <div class="panel-header">
       <span class="panel-title">巡回ルート</span>
       <div class="btn-backup-group">
-        <button class="btn-backup" onclick="exportBackupData()">💾 保存</button>
+        <button class="btn-save-route" onclick="saveCurrentRoutePrompt()">💾 ルート保存</button>
+        <button class="btn-save-route" style="background:#0284c7;" onclick="openSavedRoutesModal()">📂 保存リスト</button>
+        <button class="btn-backup" onclick="exportBackupData()">💾 バックアップ</button>
         <label class="btn-restore">
           📂 復元
           <input type="file" accept=".json" onchange="importBackupData(event)" style="display:none;">
@@ -231,7 +264,6 @@
       </div>
     </div>
 
-    <!-- ルート作成モード切り替えスイッチ -->
     <div class="route-mode-selector">
       <label>
         <input type="radio" name="routeMode" value="current" checked>
@@ -242,10 +274,11 @@
         📍 ポケふた間のみ
       </label>
     </div>
-    <!-- 下部パネル（.control-panel）の「巡回ルート」タイトルの横や、一番下に追加 -->
-<div style="font-size: 11px; text-align: center; color: #6b7280; margin-top: 4px;">
-  ご意見・不具合報告は <a href="https://x.com/akabixi" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">X (@akabixi)</a> まで
-</div>
+
+    <div style="font-size: 11px; text-align: center; color: #6b7280; margin-top: 4px;">
+      ご意見・不具合報告は <a href="https://x.com/akabixi" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">X (@akabixi)</a> まで
+    </div>
+
     <div class="route-list-container">
       <ul id="routeList" class="route-list"></ul>
     </div>
@@ -253,16 +286,63 @@
     <div class="btn-group">
       <button id="navBtn" class="btn-main btn-primary" onclick="openGoogleMaps()" disabled>Googleマップでルートを開く</button>
     </div>
-    <!-- Xでシェアするボタン -->
-<div style="margin-top: 8px;">
-  <button id="shareBtn" class="btn-main" onclick="openShareModal()" style="background-color: #059669; color: white; width: 100%; font-weight: bold; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">
-    📸 今日の記録をXでシェア
-  </button>
-</div>
+    
+    <div style="margin-top: 8px;">
+      <button id="shareBtn" class="btn-main" onclick="openShareModal()" style="background-color: #059669; color: white; width: 100%; font-weight: bold; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">
+        📸 今日の記録をXでシェア
+      </button>
+    </div>
+  </div>
+
+  <!-- 保存済みルート一覧モーダル -->
+  <div id="savedRoutesModal" class="share-modal-overlay">
+    <div class="share-modal-content">
+      <h3 style="margin-top:0; color:#1e3a8a;">📂 保存したルート一覧 (最大10件)</h3>
+      <div id="savedRoutesContainer" style="margin: 12px 0; max-height: 50vh; overflow-y: auto;"></div>
+      <button onclick="closeSavedRoutesModal()" style="background:#94a3b8; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">閉じる</button>
+    </div>
+  </div>
+
+  <!-- SNSシェア用モーダル -->
+  <div id="shareModal" class="share-modal-overlay">
+    <div class="share-modal-content">
+      <h3 style="margin-top:0; color:#1e3a8a;">📸 今日の訪問記録カード</h3>
+      
+      <div style="margin: 8px 0; text-align: left;">
+        <label style="font-size: 11px; font-weight: bold; color: #475569;">💬 カードに入れる一言メモ (任意):</label>
+        <input type="text" id="shareMemoInput" placeholder="例：香川ヤドン巡り完了！" oninput="updateCardMemo()" style="width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; margin-top: 2px; box-sizing: border-box;">
+      </div>
+
+      <div id="shareCard">
+        <div class="card-header">
+          <div style="font-size: 16px;">ポケふたナビ 訪問記録</div>
+          <div id="shareCardDate" style="font-size: 11px; opacity: 0.9; margin-top: 2px;"></div>
+        </div>
+
+        <div id="shareCardContent"></div>
+
+        <div id="shareCardMemo" style="display:none; background:#f1f5f9; padding:8px; border-radius:6px; font-size:12px; color:#334155; margin-bottom:10px; font-style:italic; border-left:3px solid #059669;"></div>
+
+        <div class="card-footer">
+          <span id="shareCardCount">本日訪問: 0箇所</span>
+          <span>akabixi.github.io/pokelid_navi.ver1.01/</span>
+        </div>
+      </div>
+
+      <div id="previewArea" style="display:none; margin-bottom:12px;">
+        <p style="font-size: 12px; color: #059669; font-weight: bold;">👇 画像長押し（または右クリック）で保存してください！</p>
+        <img id="generatedImg" style="width: 100%; border-radius: 8px; border: 1px solid #ccc;">
+      </div>
+
+      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
+        <button onclick="generateCardImage()" style="background:#059669; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">① 画像を生成</button>
+        <button onclick="postToX()" style="background:#000000; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">② Xでポスト</button>
+        <button onclick="closeShareModal()" style="background:#94a3b8; color:white; border:none; padding:10px 10px; border-radius:6px; cursor:pointer;">閉じる</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    // 地方と都道府県の対応マッピング
     const regionPrefMap = {
       hokkaido: ["北海道"],
       touhoku: ["青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"],
@@ -274,7 +354,6 @@
       kyushu: ["福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"]
     };
 
-    // 全国のポケふたマスターデータ
     const rawSpotData = {
       hokkaido: [
         { id: 1, name: "石狩市（ロコン・ナエトル）", pref: "北海道 石狩市（石狩市浜益区実田254-4）", lat: 43.585848, lng: 141.423898, officialUrl: "https://local.pokemon.jp/manhole/desc/59/" },
@@ -329,11 +408,8 @@
         { id: 50, name: "別海町（アローラロコン・トドグラー）", pref: "北海道 別海町（尾岱沼5-27）", lat: 43.533265, lng: 145.23697, officialUrl: "https://local.pokemon.jp/manhole/desc/445/" }
       ],
       touhoku: [
-        // --- 青森県 ---
         { id: 101, name: "八戸市（キャモメ・イシツブテ）", pref: "青森県八戸市大字鮫町鮫付近", lat: 40.537937, lng: 141.558034, officialUrl: "https://local.pokemon.jp/manhole/desc/157/" },
         { id: 102, name: "階上町（ナマコブシ・バチンウニ・ユキハミ）", pref: "青森県階上町大字道仏字耳ケ吠3-3", lat: 40.458437, lng: 141.608335, officialUrl: "https://local.pokemon.jp/manhole/desc/158/" },
-
-        // --- 岩手県 ---
         { id: 103, name: "洋野町（カブト）", pref: "岩手県洋野町種市22-133-11", lat: 40.406101, lng: 141.719531, officialUrl: "https://local.pokemon.jp/manhole/desc/10/" },
         { id: 104, name: "久慈市（プテラ）", pref: "岩手県久慈市中町2-5-6", lat: 40.189742, lng: 141.765832, officialUrl: "https://local.pokemon.jp/manhole/desc/11/" },
         { id: 105, name: "野田村（イワーク）", pref: "岩手県野田村大字野田第5地割", lat: 40.082726, lng: 141.828678, officialUrl: "https://local.pokemon.jp/manhole/desc/12/" },
@@ -370,8 +446,6 @@
         { id: 136, name: "金ヶ崎町（アローライシツブテ・ブロロン・メルタン）", pref: "岩手県金ヶ崎町西根伊勢分25番地7", lat: 39.200006, lng: 141.112971, officialUrl: "https://local.pokemon.jp/manhole/desc/466/" },
         { id: 137, name: "奥州市（イシツブテ・ガブリアス・カジッチュ）", pref: "岩手県奥州市水沢西町1番1号", lat: 39.138288, lng: 141.137353, officialUrl: "https://local.pokemon.jp/manhole/desc/463/" },
         { id: 138, name: "盛岡市（イシツブテ・イワンコ・ルガルガン）", pref: "岩手県盛岡市本宮字蛇屋敷地内", lat: 39.694005, lng: 141.128421, officialUrl: "https://local.pokemon.jp/manhole/desc/467/" },
-
-        // --- 宮城県 ---
         { id: 139, name: "気仙沼市（ラプラス・イシツブテ）", pref: "宮城県気仙沼市南町海岸1-14", lat: 38.905694, lng: 141.574667, officialUrl: "https://local.pokemon.jp/manhole/desc/44/" },
         { id: 140, name: "南三陸町（ラプラス・オクタン）", pref: "宮城県南三陸町歌津字伊里前96-1", lat: 38.717061, lng: 141.52115, officialUrl: "https://local.pokemon.jp/manhole/desc/45/" },
         { id: 141, name: "女川町（ラプラス・キャモメ）", pref: "宮城県女川町女川2丁目66番地", lat: 38.445695, lng: 141.44623, officialUrl: "https://local.pokemon.jp/manhole/desc/46/" },
@@ -409,22 +483,16 @@
         { id: 173, name: "美里町（ラプラス・ドードリオ・ドード）", pref: "宮城県美里町木間塚原田5", lat: 38.489061, lng: 141.133053, officialUrl: "https://local.pokemon.jp/manhole/desc/139/" },
         { id: 174, name: "加瀬沼公園（ラプラス・スワンナ・タマンタ）", pref: "宮城県宮城郡利府町加瀬新堤下", lat: 38.311641, lng: 140.983236, officialUrl: "https://local.pokemon.jp/manhole/desc/447/" },
         { id: 175, name: "仙台市（ラプラス・チョンチー・ホエルコ・ウミディグダ）", pref: "宮城県仙台市若林区藤塚地内 海岸公園（藤塚地区）", lat: 38.182602, lng: 140.956528, officialUrl: "https://local.pokemon.jp/manhole/desc/474/" },
-
-        // --- 秋田県 ---
         { id: 176, name: "秋田市（イワンコ・ガーディ）", pref: "秋田県秋田市土崎港西１丁目9-1", lat: 39.752642, lng: 140.061295, officialUrl: "https://local.pokemon.jp/manhole/desc/318/" },
         { id: 177, name: "横手市（パピモッチ）", pref: "秋田県横手市赤坂富ケ沢62-46", lat: 39.293561, lng: 140.545941, officialUrl: "https://local.pokemon.jp/manhole/desc/319/" },
         { id: 178, name: "男鹿市（オニゴーリ・ヘルガー）", pref: "秋田県男鹿市船川新浜町1-19", lat: 39.88201, lng: 139.84772, officialUrl: "https://local.pokemon.jp/manhole/desc/320/" },
         { id: 179, name: "鹿角市（カラカラ・ガラルデスマス）", pref: "秋田県鹿角市新田町11-4", lat: 40.181213, lng: 140.785474, officialUrl: "https://local.pokemon.jp/manhole/desc/321/" },
         { id: 180, name: "仙北市（ハクリュー）", pref: "秋田県仙北市ヨテコ沢４", lat: 39.699992, lng: 140.662631, officialUrl: "https://local.pokemon.jp/manhole/desc/322/" },
-
-        // --- 山形県 ---
         { id: 181, name: "山形市（ポポッコ・ラフレシア・ドレディア）", pref: "山形県山形市双葉町1-2-38", lat: 38.248477, lng: 140.325854, officialUrl: "https://local.pokemon.jp/manhole/desc/399/" },
         { id: 182, name: "寒河江市（チェリンボ・チェリム）", pref: "山形県寒河江市山西甲1269", lat: 38.363842, lng: 140.26637, officialUrl: "https://local.pokemon.jp/manhole/desc/400/" },
         { id: 183, name: "大蔵村（ランプラー・ガラルヒヒダルマ・テールナー）", pref: "山形県最上郡大蔵村南山４５１－２", lat: 38.611083, lng: 140.169653, officialUrl: "https://local.pokemon.jp/manhole/desc/401/" },
         { id: 184, name: "小国町（クマシュン・ツンベアー・アルクジラ）", pref: "山形県西置賜郡小国町大字小国小坂町616", lat: 38.072713, lng: 139.73128, officialUrl: "https://local.pokemon.jp/manhole/desc/402/" },
         { id: 185, name: "鶴岡市（ブルンゲル・ドククラゲ・メノクラゲ・プルリル）", pref: "山形県鶴岡市由良2-14", lat: 38.721151, lng: 139.684635, officialUrl: "https://local.pokemon.jp/manhole/desc/403/" },
-
-        // --- 福島県 ---
         { id: 186, name: "新地町（ラッキー・オドシシ）", pref: "福島県新地町駅前1丁目3番地", lat: 37.878748, lng: 140.925027, officialUrl: "https://local.pokemon.jp/manhole/desc/88/" },
         { id: 187, name: "相馬市（ラプラス・ポニータ）", pref: "福島県相馬市尾浜字寺前111-1", lat: 37.827708, lng: 140.963244, officialUrl: "https://local.pokemon.jp/manhole/desc/89/" },
         { id: 188, name: "南相馬市（ラッキー・ギャロップ）", pref: "福島県南相馬市原町区高見町2-30-1", lat: 37.63577, lng: 140.983041, officialUrl: "https://local.pokemon.jp/manhole/desc/90/" },
@@ -470,30 +538,21 @@
         { id: 228, name: "大熊町（ラッキー・ヒメグマ・キテルグマ・ヌイコグマ）", pref: "福島県双葉郡大熊町下野上大野116-5", lat: 37.4099576, lng: 140.983206, officialUrl: "https://local.pokemon.jp/manhole/desc/462/" }
       ],
       kanto: [
-        // --- 茨城県 ---
         { id: 229, name: "神栖市（マラカッチ・オトシドリ）", pref: "茨城県神栖市木崎1203-9", lat: 35.897341, lng: 140.649095, officialUrl: "https://local.pokemon.jp/manhole/desc/409/" },
         { id: 230, name: "筑西市（グレッグル・ハラバリー）", pref: "茨城県筑西市川澄１８５0", lat: 36.322445, lng: 139.994116, officialUrl: "https://local.pokemon.jp/manhole/desc/410/" },
         { id: 231, name: "つくば市（レックウザ）", pref: "茨城県つくば市吾妻2-7-5", lat: 36.08581, lng: 140.110839, officialUrl: "https://local.pokemon.jp/manhole/desc/411/" },
         { id: 232, name: "常陸太田市（ボーマンダ・ルチャブル）", pref: "茨城県常陸太田市下河合町1016-1", lat: 36.510672, lng: 140.525632, officialUrl: "https://local.pokemon.jp/manhole/desc/412/" },
         { id: 233, name: "水戸市（ジャローダ・ナットレイ・ハーデリア）", pref: "茨城県水戸市見川1-1251", lat: 36.372273, lng: 140.452358, officialUrl: "https://local.pokemon.jp/manhole/desc/413/" },
-
-        // --- 栃木県 ---
         { id: 234, name: "宇都宮市（エレキブー・ホシガリス）", pref: "栃木県宇都宮市元今泉5丁目10－1", lat: 36.56044, lng: 139.908695, officialUrl: "https://local.pokemon.jp/manhole/desc/226/" },
         { id: 235, name: "宇都宮市（ラクライ・イワパレス）", pref: "栃木県宇都宮市新里町丙254番地", lat: 36.634218, lng: 139.83098, officialUrl: "https://local.pokemon.jp/manhole/desc/227/" },
         { id: 236, name: "宇都宮市（ボルトロス）", pref: "栃木県宇都宮市大曽2丁目地内", lat: 36.572194, lng: 139.887334, officialUrl: "https://local.pokemon.jp/manhole/desc/228/" },
-
-        // --- 埼玉県 ---
         { id: 237, name: "所沢市（ミニリュウ・アーマーガア）", pref: "埼玉県所沢市松郷143-3", lat: 35.797482, lng: 139.505528, officialUrl: "https://local.pokemon.jp/manhole/desc/211/" },
         { id: 238, name: "所沢市（ハクリュー・エアームド）", pref: "埼玉県所沢市日吉町1", lat: 35.786887, lng: 139.472881, officialUrl: "https://local.pokemon.jp/manhole/desc/212/" },
         { id: 239, name: "所沢市（カイリュー）", pref: "埼玉県所沢市並木1-13", lat: 35.798734, lng: 139.471991, officialUrl: "https://local.pokemon.jp/manhole/desc/213/" },
-
-        // --- 千葉県 ---
         { id: 240, name: "香取市（ガラルカモネギ）", pref: "千葉県香取市佐原イ109-14", lat: 35.894417, lng: 140.493902, officialUrl: "https://local.pokemon.jp/manhole/desc/222/" },
         { id: 241, name: "香取市（タイレーツ・ココガラ）", pref: "千葉県香取市佐原イ1722-1", lat: 35.888376, lng: 140.497568, officialUrl: "https://local.pokemon.jp/manhole/desc/223/" },
         { id: 242, name: "香取市（フラージェス・ヤヤコマ）", pref: "千葉県香取市佐原ハ4549-1", lat: 35.928206, lng: 140.523401, officialUrl: "https://local.pokemon.jp/manhole/desc/224/" },
         { id: 243, name: "香取市（ハスボー・タネボー・ムクバード）", pref: "千葉県香取市佐原イ4053-3", lat: 35.896204, lng: 140.506419, officialUrl: "https://local.pokemon.jp/manhole/desc/225/" },
-
-        // --- 東京都 ---
         { id: 244, name: "町田市（フシギダネ）", pref: "東京都町田市原町田5-16", lat: 35.548108, lng: 139.45034, officialUrl: "https://local.pokemon.jp/manhole/desc/98/" },
         { id: 245, name: "町田市（ヒトカゲ）", pref: "東京都町田市原町田5-16", lat: 35.548171, lng: 139.4513, officialUrl: "https://local.pokemon.jp/manhole/desc/99/" },
         { id: 246, name: "町田市（ゼニガメ）", pref: "東京都町田市原町田5-16", lat: 35.545302, lng: 139.45501, officialUrl: "https://local.pokemon.jp/manhole/desc/100/" },
@@ -507,8 +566,6 @@
         { id: 254, name: "台東区（チゴラス・ソーナノ）", pref: "東京都台東区上野公園7-20", lat: 35.71681, lng: 139.776399, officialUrl: "https://local.pokemon.jp/manhole/desc/172/" },
         { id: 255, name: "台東区（ヤジロン・ドーミラー）", pref: "東京都台東区上野公園13-9", lat: 35.717715, lng: 139.775397, officialUrl: "https://local.pokemon.jp/manhole/desc/173/" },
         { id: 256, name: "ポケパークカントー（ピカチュウ・イーブイ）", pref: "東京都稲城市矢野口4015-1 よみうりランド遊園地内", lat: 35.62637, lng: 139.521513, officialUrl: "https://local.pokemon.jp/manhole/desc/448/" },
-
-        // --- 神奈川県 ---
         { id: 257, name: "横浜市（ピカチュウ）", pref: "神奈川県横浜市中区桜木町1-1", lat: 35.451167, lng: 139.631501, officialUrl: "https://local.pokemon.jp/manhole/desc/23/" },
         { id: 258, name: "横浜市（ピカチュウ・ライチュウ）", pref: "神奈川県横浜市中区新港一丁目", lat: 35.451037, lng: 139.644154, officialUrl: "https://local.pokemon.jp/manhole/desc/311/" },
         { id: 259, name: "横浜市（ピカチュウ・ペリッパー）", pref: "神奈川県横浜市中区山下町14-1", lat: 35.443707, lng: 139.650904, officialUrl: "https://local.pokemon.jp/manhole/desc/312/" },
@@ -516,18 +573,13 @@
         { id: 261, name: "横浜市（ピカチュウ・コダック・ワンリキー）", pref: "神奈川県横浜市西区みなとみらい2-1-1", lat: 35.453319, lng: 139.631688, officialUrl: "https://local.pokemon.jp/manhole/desc/314/" }
       ],
       chubu: [
-        // --- 新潟県 ---
         { id: 262, name: "小千谷市（コイキング）", pref: "新潟県小千谷市城内2-7-5", lat: 37.314216, lng: 138.794792, officialUrl: "https://local.pokemon.jp/manhole/desc/144/" },
         { id: 263, name: "小千谷市（コイキング）", pref: "新潟県小千谷市東栄1-1付近", lat: 37.309883, lng: 138.812636, officialUrl: "https://local.pokemon.jp/manhole/desc/145/" },
         { id: 264, name: "小千谷市（コイキング・ヒンバス）", pref: "新潟県小千谷市城内1-8-22", lat: 37.311028, lng: 138.795653, officialUrl: "https://local.pokemon.jp/manhole/desc/146/" },
         { id: 265, name: "小千谷市（コイキング・ピジョン）", pref: "新潟県小千谷市大字桜町4915", lat: 37.314301, lng: 138.7835, officialUrl: "https://local.pokemon.jp/manhole/desc/147/" },
-
-        // --- 富山県 ---
         { id: 266, name: "富山市（アブソル）", pref: "富山県富山市呉羽町2247-3", lat: 36.715615, lng: 137.164366, officialUrl: "https://local.pokemon.jp/manhole/desc/275/" },
         { id: 267, name: "富山市（マーイーカ）", pref: "富山県富山市湊入船町75-1", lat: 36.70987, lng: 137.213161, officialUrl: "https://local.pokemon.jp/manhole/desc/276/" },
         { id: 268, name: "富山市（レディバ・キュワワ）", pref: "富山県富山市丸の内三丁目1-1", lat: 36.692325, lng: 137.210281, officialUrl: "https://local.pokemon.jp/manhole/desc/277/" },
-
-        // --- 石川県 ---
         { id: 269, name: "金沢市（ミロカロス）", pref: "石川県金沢市出羽町3-2", lat: 36.559162, lng: 136.661926, officialUrl: "https://local.pokemon.jp/manhole/desc/301/" },
         { id: 270, name: "輪島市（ダルマッカ・ゲッコウガ）", pref: "石川県輪島市河井町20-1-131", lat: 37.388972, lng: 136.90625, officialUrl: "https://local.pokemon.jp/manhole/desc/469/" },
         { id: 271, name: "珠洲市（ラブカス・ニンフィア）", pref: "石川県珠洲市宝立町鵜島二47-1", lat: 37.39454, lng: 137.240367, officialUrl: "https://local.pokemon.jp/manhole/desc/470/" },
@@ -536,8 +588,6 @@
         { id: 274, name: "能登町（ロザエリア・メテノ・ハスボー）", pref: "石川県鳳珠郡能登町字上町ロ部1-1", lat: 37.333975, lng: 137.138718, officialUrl: "https://local.pokemon.jp/manhole/desc/473/" },
         { id: 275, name: "七尾市（ニョロトノ・ギャラドス・ニョロモ）", pref: "石川県七尾市和倉町ひばり1丁目1番地", lat: 37.087801, lng: 136.923564, officialUrl: "https://local.pokemon.jp/manhole/desc/468/" },
         { id: 276, name: "輪島市（ボーマンダ・タツベイ）", pref: "石川県輪島市三井町洲衛１０−１１−１能登空港（のと里山空港）", lat: 37.295752, lng: 136.957244, officialUrl: "https://local.pokemon.jp/manhole/desc/475/" },
-
-        // --- 福井県 ---
         { id: 277, name: "勝山市（カイリュー・アーケン・ガチゴラス）", pref: "福井県勝山市遅羽町比島34-2-7", lat: 36.056787, lng: 136.492007, officialUrl: "https://local.pokemon.jp/manhole/desc/336/" },
         { id: 278, name: "あわら市（カイリュー・トゲチック・ジグザグマ）", pref: "福井県あわら市春宮1-13", lat: 36.215613, lng: 136.234226, officialUrl: "https://local.pokemon.jp/manhole/desc/337/" },
         { id: 279, name: "越前市（カイリュー・エレズン・ヒトツキ）", pref: "福井県越前市大屋町38-5-1", lat: 35.895286, lng: 136.198727, officialUrl: "https://local.pokemon.jp/manhole/desc/338/" },
@@ -555,30 +605,22 @@
         { id: 291, name: "鯖江市（カイリュー・モルペコ・サッチムシ）", pref: "福井県鯖江市桜町3丁目8-1", lat: 35.950098, lng: 136.181116, officialUrl: "https://local.pokemon.jp/manhole/desc/419/" },
         { id: 292, name: "若狭町（カイリュー・コアルヒー）", pref: "福井県三方上中郡若狭町市場18-18", lat: 35.461441, lng: 135.860204, officialUrl: "https://local.pokemon.jp/manhole/desc/420/" },
         { id: 293, name: "越前町（カイリュー・プクリン）", pref: "福井県丹生郡越前町小曽原120-60", lat: 35.93468, lng: 136.05872, officialUrl: "https://local.pokemon.jp/manhole/desc/421/" },
-
-        // --- 長野県 ---
         { id: 294, name: "岡谷市（モスノウ）", pref: "長野県岡谷市幸町1", lat: 36.06648, lng: 138.0511, officialUrl: "https://local.pokemon.jp/manhole/desc/481/" },
         { id: 295, name: "伊那市（ヒヒダルマ・バサギリ・アマージョ）", pref: "長野県伊那市西箕輪3416-1（みはらしファーム内 名人亭南側）", lat: 35.882479, lng: 137.919057, officialUrl: "https://local.pokemon.jp/manhole/desc/482/" },
         { id: 296, name: "大町市（ビッパ・ミニリュウ）", pref: "長野県大町市大町2532-7（名店街）", lat: 36.506032, lng: 137.859702, officialUrl: "https://local.pokemon.jp/manhole/desc/483/" },
         { id: 297, name: "南牧村（エレザード・エレキテル）", pref: "長野県南佐久郡南牧村大字野辺山306付近", lat: 35.955351, lng: 138.474215, officialUrl: "https://local.pokemon.jp/manhole/desc/484/" },
         { id: 298, name: "木祖村（パチリス・オーロット・ココガラ）", pref: "長野県木曽郡木祖村薮原1038-1", lat: 35.935271, lng: 137.784559, officialUrl: "https://local.pokemon.jp/manhole/desc/485/" },
         { id: 299, name: "山ノ内町（マンキー・ガラルダルマッカ・ヒヤップ）", pref: "長野県下高井郡山ノ内町大字平穏3227番地1", lat: 36.74156, lng: 138.41505, officialUrl: "https://local.pokemon.jp/manhole/desc/486/" },
-
-        // --- 岐阜県 ---
         { id: 300, name: "各務原市（ナマズン・ドジョッチ）", pref: "岐阜県各務原市川島笠田町1569-1", lat: 35.37067, lng: 136.807773, officialUrl: "https://local.pokemon.jp/manhole/desc/359/" },
         { id: 301, name: "下呂市（ガマゲロゲ・オタマロ・ガマガル）", pref: "岐阜県下呂市森1075-1", lat: 35.807771, lng: 137.242963, officialUrl: "https://local.pokemon.jp/manhole/desc/360/" },
         { id: 302, name: "関市（ウッウ）", pref: "岐阜県関市東桜町8-1", lat: 35.490472, lng: 136.91225, officialUrl: "https://local.pokemon.jp/manhole/desc/361/" },
         { id: 303, name: "関ケ原町（ドドゲザン・コマタナ）", pref: "岐阜県不破郡関ケ原町大字関ケ原894-95", lat: 35.36402, lng: 136.46842, officialUrl: "https://local.pokemon.jp/manhole/desc/362/" },
         { id: 304, name: "高山市（ヤナップ・バオップ・ヒヤップ）", pref: "岐阜県高山市本町4-1", lat: 36.144911, lng: 137.257235, officialUrl: "https://local.pokemon.jp/manhole/desc/363/" },
-
-        // --- 静岡県 ---
         { id: 305, name: "静岡市（ムクホーク・フシギソウ）", pref: "静岡県静岡市葵区追手町５番１号", lat: 34.977499, lng: 138.382564, officialUrl: "https://local.pokemon.jp/manhole/desc/347/" },
         { id: 306, name: "浜松市（メロエッタ・シビルドン）", pref: "静岡県浜松市中央区砂山町320-2（浜松UP-ON付近）", lat: 34.704017, lng: 137.732587, officialUrl: "https://local.pokemon.jp/manhole/desc/348/" },
         { id: 307, name: "沼津市（ハンテール・ジーランス・サクラビス）", pref: "静岡県沼津市本字千本1905-27", lat: 35.081613, lng: 138.854743, officialUrl: "https://local.pokemon.jp/manhole/desc/349/" },
         { id: 308, name: "富士市（ファイヤー）", pref: "静岡県富士市岩淵1488-1", lat: 35.161532, lng: 138.617705, officialUrl: "https://local.pokemon.jp/manhole/desc/350/" },
         { id: 309, name: "伊豆市（ヤンチャム・ゴロンダ）", pref: "静岡県伊豆市修善寺943番地の１", lat: 34.970344, lng: 138.927728, officialUrl: "https://local.pokemon.jp/manhole/desc/351/" },
-
-        // --- 愛知県 ---
         { id: 310, name: "豊橋市（カブト・クワガノン）", pref: "愛知県豊橋市大岩町大穴1-238", lat: 34.72096, lng: 137.429448, officialUrl: "https://local.pokemon.jp/manhole/desc/271/" },
         { id: 311, name: "豊橋市（アブリボン・アゴジムシ）", pref: "愛知県豊橋市駅前大通1-134", lat: 34.762599, lng: 137.382958, officialUrl: "https://local.pokemon.jp/manhole/desc/272/" },
         { id: 312, name: "豊橋市（スターミー・デンヂムシ）", pref: "愛知県豊橋市東七根町一の沢113-2", lat: 34.695901, lng: 137.413953, officialUrl: "https://local.pokemon.jp/manhole/desc/273/" },
@@ -590,7 +632,6 @@
         { id: 318, name: "西尾市（マホイップ・ゴクリン）", pref: "愛知県西尾市錦城町233", lat: 34.867221, lng: 137.048298, officialUrl: "https://local.pokemon.jp/manhole/desc/408/" }
       ],
       kansai: [
-        // --- 三重県 ---
         { id: 319, name: "津市（ミジュマル）", pref: "三重県津市西丸之内23番1号", lat: 34.718493, lng: 136.5108, officialUrl: "https://local.pokemon.jp/manhole/desc/240/" },
         { id: 320, name: "四日市市（ミジュマル・ダイケンキ）", pref: "三重県四日市市日永東一丁目3-21", lat: 34.952407, lng: 136.611964, officialUrl: "https://local.pokemon.jp/manhole/desc/241/" },
         { id: 321, name: "伊勢市（ミジュマル・リーシャン）", pref: "三重県伊勢市本町20", lat: 34.487787, lng: 136.707097, officialUrl: "https://local.pokemon.jp/manhole/desc/242/" },
@@ -622,15 +663,11 @@
         { id: 347, name: "鳥羽市（ミジュマル）", pref: "三重県鳥羽市鳥羽一丁目地内", lat: 34.490787, lng: 136.844965, officialUrl: "https://local.pokemon.jp/manhole/desc/414/" },
         { id: 348, name: "鈴鹿市（ミジュマル）", pref: "三重県鈴鹿市住吉町地内", lat: 34.852227, lng: 136.538663, officialUrl: "https://local.pokemon.jp/manhole/desc/415/" },
         { id: 349, name: "松阪市（ミジュマル・ニャース）", pref: "三重県松阪市外五曲町１番地１", lat: 34.578655, lng: 136.519839, officialUrl: "https://local.pokemon.jp/manhole/desc/333/" },
-
-        // --- 滋賀県 ---
         { id: 350, name: "大津市（ギャラドス）", pref: "滋賀県大津市島の関14", lat: 35.0102, lng: 135.8699, officialUrl: "https://local.pokemon.jp/manhole/desc/104/" },
         { id: 351, name: "大津市（ギャラドス）", pref: "滋賀県大津市由美浜", lat: 34.9981, lng: 135.8946, officialUrl: "https://local.pokemon.jp/manhole/desc/105/" },
         { id: 352, name: "甲賀市（ゲッコウガ）", pref: "滋賀県甲賀市甲南町竜法師600", lat: 34.919591, lng: 136.170196, officialUrl: "https://local.pokemon.jp/manhole/desc/237/" },
         { id: 353, name: "甲賀市（ゲッコウガ）", pref: "滋賀県甲賀市水口町北内貴230", lat: 34.960528, lng: 136.165168, officialUrl: "https://local.pokemon.jp/manhole/desc/238/" },
         { id: 354, name: "甲賀市（ゲッコウガ・ゲコガシラ）", pref: "滋賀県甲賀市甲賀町大久保507番地2", lat: 34.900437, lng: 136.229399, officialUrl: "https://local.pokemon.jp/manhole/desc/239/" },
-
-        // --- 京都府 ---
         { id: 355, name: "京都市（ホウオウ）", pref: "京都府京都市右京区嵯峨中ノ島町", lat: 35.011863, lng: 135.678745, officialUrl: "https://local.pokemon.jp/manhole/desc/159/" },
         { id: 356, name: "京都市（ピィ・ププリン・ピチュー）", pref: "京都府京都市東山区円山町", lat: 35.00337, lng: 135.780573, officialUrl: "https://local.pokemon.jp/manhole/desc/160/" },
         { id: 357, name: "京都市（チコリータ・ダーテング）", pref: "京都府京都市右京区西京極新明町", lat: 34.994784, lng: 135.714323, officialUrl: "https://local.pokemon.jp/manhole/desc/161/" },
@@ -639,27 +676,19 @@
         { id: 360, name: "宇治市（ヒバニー・パッチール）", pref: "京都府宇治市宇治山田６８−１", lat: 34.890627, lng: 135.809787, officialUrl: "https://local.pokemon.jp/manhole/desc/352/" },
         { id: 361, name: "宇治市（ヤバソチャ・チャデス）", pref: "京都府宇治市菟道丸山203-1", lat: 34.895547, lng: 135.805962, officialUrl: "https://local.pokemon.jp/manhole/desc/353/" },
         { id: 362, name: "ニンテンドーミュージアム（ピカチュー）", pref: "京都府宇治市小倉町神楽田56番地", lat: 34.892561, lng: 135.784525, officialUrl: "https://local.pokemon.jp/manhole/desc/382/" },
-
-        // --- 大阪府 ---
         { id: 363, name: "東大阪市（コイル・レアコイル）", pref: "大阪府東大阪市荒本北1丁目1番1号", lat: 34.679788, lng: 135.601221, officialUrl: "https://local.pokemon.jp/manhole/desc/206/" },
         { id: 364, name: "東大阪市（ギアル・ギギアル）", pref: "大阪府東大阪市旭町1番1号", lat: 34.66771, lng: 135.63989, officialUrl: "https://local.pokemon.jp/manhole/desc/207/" },
         { id: 365, name: "東大阪市（エレキッド・クチート）", pref: "大阪府東大阪市東石切町2-4", lat: 34.680678, lng: 135.650788, officialUrl: "https://local.pokemon.jp/manhole/desc/208/" },
         { id: 366, name: "東大阪市（ライコウ）", pref: "大阪府東大阪市松原南1-1", lat: 34.667678, lng: 135.626309, officialUrl: "https://local.pokemon.jp/manhole/desc/209/" },
         { id: 367, name: "東大阪市（トゲデマル・ワンパチ）", pref: "大阪府東大阪市松原南2-6", lat: 34.669486, lng: 135.630586, officialUrl: "https://local.pokemon.jp/manhole/desc/210/" },
-
-        // --- 兵庫県 ---
         { id: 368, name: "淡路市（ルギア）", pref: "兵庫県淡路市岩屋1873-1", lat: 34.601828, lng: 135.009441, officialUrl: "https://local.pokemon.jp/manhole/desc/203/" },
         { id: 369, name: "淡路市（ベイリーフ・フレフワン）", pref: "兵庫県淡路市小倉177", lat: 34.550436, lng: 134.938094, officialUrl: "https://local.pokemon.jp/manhole/desc/204/" },
         { id: 370, name: "淡路市（パルシェン・トリトドン）", pref: "兵庫県淡路市尾崎3025-1", lat: 34.482151, lng: 134.873103, officialUrl: "https://local.pokemon.jp/manhole/desc/205/" },
-
-        // --- 奈良県 ---
         { id: 371, name: "斑鳩町（ドータクン・バオッキー）", pref: "奈良県斑鳩町興留7丁目3番地内", lat: 34.60189, lng: 135.73917, officialUrl: "https://local.pokemon.jp/manhole/desc/148/" },
         { id: 372, name: "斑鳩町（マタツボミ・ガーディ）", pref: "奈良県斑鳩町興留5丁目5番28号", lat: 34.60474, lng: 135.7376, officialUrl: "https://local.pokemon.jp/manhole/desc/149/" },
         { id: 373, name: "斑鳩町（ブビィ・チリーン）", pref: "奈良県斑鳩町興留2丁目1番地内", lat: 34.60827, lng: 135.73769, officialUrl: "https://local.pokemon.jp/manhole/desc/150/" },
         { id: 374, name: "斑鳩町（ヒノヤコマ・シキジカ）", pref: "奈良県斑鳩町法隆寺南1丁目2番地内", lat: 34.60826, lng: 135.73755, officialUrl: "https://local.pokemon.jp/manhole/desc/151/" },
         { id: 375, name: "斑鳩町（エンテイ）", pref: "奈良県斑鳩町法隆寺1丁目8番25号", lat: 34.60983, lng: 135.73529, officialUrl: "https://local.pokemon.jp/manhole/desc/152/" },
-
-        // --- 和歌山県 ---
         { id: 376, name: "和歌山市（レントラー）", pref: "和歌山県和歌山市七番丁23", lat: 34.2300173, lng: 135.171405, officialUrl: "https://local.pokemon.jp/manhole/desc/342/" },
         { id: 377, name: "高野町（ウーラオス）", pref: "和歌山県高野町高野山357", lat: 34.212091, lng: 135.583052, officialUrl: "https://local.pokemon.jp/manhole/desc/343/" },
         { id: 378, name: "白浜町（ヤンチャム・ナミイルカ）", pref: "和歌山県白浜町堅田1474", lat: 33.675779, lng: 135.387056, officialUrl: "https://local.pokemon.jp/manhole/desc/344/" },
@@ -667,7 +696,6 @@
         { id: 380, name: "那智勝浦町（セレビィ）", pref: "和歌山県那智勝浦町大字市野々3034-2", lat: 33.668973, lng: 135.902917, officialUrl: "https://local.pokemon.jp/manhole/desc/346/" }
       ],
       chugoku: [
-        // --- 鳥取県 ---
         { id: 381, name: "鳥取市（サンド・アローラサンド・ミミロル）", pref: "鳥取県鳥取市福部町湯山2083-17地先", lat: 35.539668, lng: 134.237266, officialUrl: "https://local.pokemon.jp/manhole/desc/74/" },
         { id: 382, name: "米子市（サンド・スワンナ・カモネギ）", pref: "鳥取県米子市皆生温泉3丁目1番1号", lat: 35.456258, lng: 133.361525, officialUrl: "https://local.pokemon.jp/manhole/desc/75/" },
         { id: 383, name: "倉吉市（サンド・アローラサンド）", pref: "鳥取県倉吉市上井195", lat: 35.454272, lng: 133.850116, officialUrl: "https://local.pokemon.jp/manhole/desc/76/" },
@@ -688,33 +716,24 @@
         { id: 398, name: "日吉津村（サンド・メタモン）", pref: "鳥取県日吉津村大字日吉津930番地", lat: 35.441126, lng: 133.379578, officialUrl: "https://local.pokemon.jp/manhole/desc/109/" },
         { id: 399, name: "江府町（サンド・アローラサンド）", pref: "鳥取県江府町佐川908-3", lat: 35.295841, lng: 133.474089, officialUrl: "https://local.pokemon.jp/manhole/desc/110/" },
         { id: 400, name: "鳥取市（サンド・アローラサンド・ホルビー）", pref: "鳥取県鳥取市浜坂1157-1", lat: 35.53395, lng: 134.224478, officialUrl: "https://local.pokemon.jp/manhole/desc/300/" },
-
-        // --- 島根県 ---
         { id: 401, name: "浜田市（マッギョ・オムスター）", pref: "島根県原井町1203-1", lat: 34.88924, lng: 132.07129, officialUrl: "https://local.pokemon.jp/manhole/desc/377/" },
         { id: 402, name: "出雲市（ワッカネズミ・ラブカス）", pref: "島根県大社町日御碕字秘台原山1481-2", lat: 35.4330088, lng: 132.629353, officialUrl: "https://local.pokemon.jp/manhole/desc/378/" },
         { id: 403, name: "大田市（サザンドラ・エルレイド）", pref: "島根県大田市仁摩町大国42-1", lat: 35.145782, lng: 132.413128, officialUrl: "https://local.pokemon.jp/manhole/desc/379/" },
         { id: 404, name: "安来市（ドジョッチ・バリヤード）", pref: "島根県安来市安来町2093-3", lat: 35.428407, lng: 133.259012, officialUrl: "https://local.pokemon.jp/manhole/desc/380/" },
         { id: 405, name: "隠岐の島町（デデンネ・ミミロップ）", pref: "島根県岬町1889番地12", lat: 36.1772525, lng: 133.3302467, officialUrl: "https://local.pokemon.jp/manhole/desc/381/" },
-
-        // --- 岡山県 ---
         { id: 406, name: "倉敷市（ルカリオ）", pref: "岡山県倉敷市下津井田之浦1-1", lat: 34.43427, lng: 133.81388, officialUrl: "https://local.pokemon.jp/manhole/desc/194/" },
         { id: 407, name: "倉敷市（アゲハント・ポチエナ）", pref: "岡山県倉敷市中央2-6-1", lat: 34.59556, lng: 133.76888, officialUrl: "https://local.pokemon.jp/manhole/desc/195/" },
         { id: 408, name: "倉敷市（ワタシラガ・サルノリ）", pref: "岡山県倉敷市中央1-18-1", lat: 34.59274, lng: 133.77046, officialUrl: "https://local.pokemon.jp/manhole/desc/196/" },
         { id: 409, name: "倉敷市（ケンホロウ）", pref: "岡山県倉敷市阿知2-17", lat: 34.59829, lng: 133.77029, officialUrl: "https://local.pokemon.jp/manhole/desc/197/" },
-
-        // --- 山口県 ---
         { id: 410, name: "下関市（エンペルト・ホエルコ）", pref: "山口県下関市阿弥陀寺町6", lat: 33.958211, lng: 130.948691, officialUrl: "https://local.pokemon.jp/manhole/desc/288/" },
         { id: 411, name: "下関市（チョンチー・ハリーセン）", pref: "山口県下関市あるかぽーと6", lat: 33.954627, lng: 130.9416769, officialUrl: "https://local.pokemon.jp/manhole/desc/289/" },
         { id: 412, name: "下関市（アーボ）", pref: "山口県下関市大字彦島字船島648", lat: 33.934094, lng: 130.930909, officialUrl: "https://local.pokemon.jp/manhole/desc/290/" },
         { id: 413, name: "下関市（ドガース）", pref: "山口県下関市大字彦島字船島648", lat: 33.935457, lng: 130.929705, officialUrl: "https://local.pokemon.jp/manhole/desc/291/" }
       ],
       shikoku: [
-        // --- 徳島県 ---
         { id: 434, name: "鳴門市（スイクン）", pref: "徳島県鳴門市鳴門町土佐泊浦字大毛82-100", lat: 34.224106, lng: 134.636196, officialUrl: "https://local.pokemon.jp/manhole/desc/327/" },
         { id: 435, name: "鳴門市（シードラ・キングドラ）", pref: "徳島県鳴門市撫養町斎田字北浜157", lat: 34.181955, lng: 134.601709, officialUrl: "https://local.pokemon.jp/manhole/desc/328/" },
         { id: 436, name: "鳴門市（ニョロモ・ニョロゾ・ディグダ）", pref: "徳島県鳴門市撫養町立岩字四枚61", lat: 34.168084, lng: 134.616371, officialUrl: "https://local.pokemon.jp/manhole/desc/329/" },
-
-        // --- 香川県 ---
         { id: 437, name: "高松市（ヤドン）", pref: "香川県高松市南新町8-30地先", lat: 34.338888, lng: 134.049052, officialUrl: "https://local.pokemon.jp/manhole/desc/28/" },
         { id: 438, name: "丸亀市（ヤドン）", pref: "香川県丸亀市浜町109-4", lat: 34.292014, lng: 133.793951, officialUrl: "https://local.pokemon.jp/manhole/desc/29/" },
         { id: 439, name: "坂出市（ヤドン）", pref: "香川県坂出市駒止町1丁目4", lat: 34.312992, lng: 133.856292, officialUrl: "https://local.pokemon.jp/manhole/desc/30/" },
@@ -733,12 +752,8 @@
         { id: 452, name: "まんのう町（ヤドン）", pref: "香川県まんのう町吉野4314-1", lat: 34.173339, lng: 133.871387, officialUrl: "https://local.pokemon.jp/manhole/desc/43/" },
         { id: 453, name: "宇多津町（ヤドン・ヌオー）", pref: "香川県宇多津町浜一番丁4番地", lat: 34.3134259, lng: 133.807869, officialUrl: "https://local.pokemon.jp/manhole/desc/97/" },
         { id: 454, name: "綾川町（ヤドン・ガラルヤドン・シェルダー）", pref: "香川県綾川町萱原253-7", lat: 34.247395, lng: 133.9327735, officialUrl: "https://local.pokemon.jp/manhole/desc/298/" },
-
-        // --- 愛媛県 ---
         { id: 455, name: "松山市（アマカジ・アマージョ）", pref: "愛媛県松山市大街道2丁目 大街道アーケード", lat: 33.84106, lng: 132.77024, officialUrl: "https://local.pokemon.jp/manhole/desc/325/" },
         { id: 456, name: "松山市（ジュバルゴ・ネギガナイト）", pref: "愛媛県松山市朝日ヶ丘1丁目 松山総合公園展望広場", lat: 33.84426, lng: 132.74078, officialUrl: "https://local.pokemon.jp/manhole/desc/326/" },
-
-        // --- 高知県 ---
         { id: 457, name: "香美市（ヌオー・コマタナ・モノズ）", pref: "高知県香美市物部町大栃872番地2", lat: 33.695608, lng: 133.874784, officialUrl: "https://local.pokemon.jp/manhole/desc/390/" },
         { id: 458, name: "奈半利町（ヌオー・ノクタス・サニーゴ）", pref: "高知県安芸郡奈半利町乙4779-3", lat: 33.425249, lng: 134.017781, officialUrl: "https://local.pokemon.jp/manhole/desc/391/" },
         { id: 459, name: "大豊町（ヌオー・チルタリス）", pref: "高知県長岡郡大豊町中村大王4037-25", lat: 33.749067, lng: 133.684166, officialUrl: "https://local.pokemon.jp/manhole/desc/392/" },
@@ -759,7 +774,6 @@
         { id: 474, name: "高知市（ヌオー・トサキント）", pref: "高知県高知市北本町2-10-17", lat: 33.5670166, lng: 133.5431367, officialUrl: "https://local.pokemon.jp/manhole/desc/449/" }
       ],
       kyushu: [
-        // --- 福岡県 ---
         { id: 475, name: "北九州市（ボスゴドラ）", pref: "福岡県北九州市小倉北区室町一丁目1 リバーウォーク北九州", lat: 33.884982, lng: 130.876213, officialUrl: "https://local.pokemon.jp/manhole/desc/198/" },
         { id: 476, name: "北九州市（アローラダグトリオ・トロッゴン）", pref: "福岡県北九州市小倉北区浅野三丁目5 あさの汐風公園", lat: 33.890528, lng: 130.884609, officialUrl: "https://local.pokemon.jp/manhole/desc/199/" },
         { id: 477, name: "北九州市（ジュラルドン・ヤミラミ）", pref: "福岡県北九州市八幡東区東田二丁目3 東田エリア", lat: 33.87192, lng: 130.807892, officialUrl: "https://local.pokemon.jp/manhole/desc/200/" },
@@ -768,13 +782,9 @@
         { id: 480, name: "太宰府市（ギルガルド）", pref: "福岡県太宰府市朱雀3-13", lat: 33.505199, lng: 130.516571, officialUrl: "https://local.pokemon.jp/manhole/desc/317/" },
         { id: 481, name: "太宰府市（ヤレユータン・フーディン・ヤドキング）", pref: "福岡県太宰府市宰府2-5", lat: 33.519356, lng: 130.531372, officialUrl: "https://local.pokemon.jp/manhole/desc/316/" },
         { id: 482, name: "太宰府市（メブキジカ・ヤヤコマ・キルリア）", pref: "福岡県太宰府市観世音寺4-6", lat: 33.513335, lng: 130.515174, officialUrl: "https://local.pokemon.jp/manhole/desc/315/" },
-
-        // --- 佐賀県 ---
         { id: 483, name: "佐賀市（ニャース）", pref: "佐賀県佐賀市松原1丁目1-1", lat: 33.2507565, lng: 130.2989299, officialUrl: "https://local.pokemon.jp/manhole/desc/255/" },
         { id: 484, name: "佐賀市（アローラニャース）", pref: "佐賀県佐賀市水ヶ江2丁目11-11", lat: 33.2483358, lng: 130.3089011, officialUrl: "https://local.pokemon.jp/manhole/desc/256/" },
         { id: 485, name: "佐賀市（ガラルニャース）", pref: "佐賀県佐賀市城内1丁目1-59", lat: 33.2490097, lng: 130.3003128, officialUrl: "https://local.pokemon.jp/manhole/desc/257/" },
-
-        // --- 長崎県 ---
         { id: 486, name: "長崎市（デンリュウ・トゲピー・キャモメ）", pref: "長崎県長崎市尾上町5-6", lat: 32.753712, lng: 129.86735, officialUrl: "https://local.pokemon.jp/manhole/desc/354/" },
         { id: 487, name: "佐世保市（ドレディア・デンリュウ・キモリ）", pref: "長崎県佐世保市新港町3", lat: 33.163987, lng: 129.724169, officialUrl: "https://local.pokemon.jp/manhole/desc/355/" },
         { id: 488, name: "大村市（デンリュウ・チェリム）", pref: "長崎県大村市植松3丁目135-5", lat: 32.933111, lng: 129.958278, officialUrl: "https://local.pokemon.jp/manhole/desc/356/" },
@@ -790,8 +800,6 @@
         { id: 498, name: "五島市（モココ・デンリュウ・メリープ）", pref: "長崎県五島市野々切町1333-3", lat: 32.641898, lng: 128.847861, officialUrl: "https://local.pokemon.jp/manhole/desc/478/" },
         { id: 499, name: "対馬市（デンリュウ・キノガッサ・レパルダス）", pref: "長崎県対馬市厳原町今屋敷672-1", lat: 34.202685, lng: 129.289139, officialUrl: "https://local.pokemon.jp/manhole/desc/477/" },
         { id: 500, name: "諫早市（デンリュウ・メタグロス）", pref: "長崎県諫早市永昌東町2", lat: 32.851951, lng: 130.042015, officialUrl: "https://local.pokemon.jp/manhole/desc/476/" },
-
-        // --- 宮崎県 ---
         { id: 501, name: "宮崎市（ナッシー・ポワルン）", pref: "宮崎県宮崎市大字加江田7275-1", lat: 31.807505, lng: 131.457839, officialUrl: "https://local.pokemon.jp/manhole/desc/111/" },
         { id: 502, name: "都城市（アローラナッシー・メテノ）", pref: "宮崎県都城市天神町3", lat: 31.725213, lng: 131.0661894, officialUrl: "https://local.pokemon.jp/manhole/desc/112/" },
         { id: 503, name: "延岡市（ナッシー・アローラナッシー）", pref: "宮崎県延岡市北浦町古江3337-1", lat: 32.684711, lng: 131.801103, officialUrl: "https://local.pokemon.jp/manhole/desc/113/" },
@@ -818,8 +826,6 @@
         { id: 524, name: "日之影町（ナッシー・レジスチル）", pref: "宮崎県日之影町大字七折8705-12", lat: 32.660643, lng: 131.388639, officialUrl: "https://local.pokemon.jp/manhole/desc/185/" },
         { id: 525, name: "五ヶ瀬町（ナッシー・レジアイス）", pref: "宮崎県五ヶ瀬町三ヶ所9400 Gパーク五ヶ瀬町総合公園内", lat: 32.679051, lng: 131.210041, officialUrl: "https://local.pokemon.jp/manhole/desc/186/" },
         { id: 526, name: "新富町（アローラナッシー・マクノシタ）", pref: "宮崎県新富町大字三納代1839（三納代広場）", lat: 32.073902, lng: 131.495719, officialUrl: "https://local.pokemon.jp/manhole/desc/166/" },
-
-        // --- 鹿児島県 ---
         { id: 527, name: "指宿市（イーブイ）", pref: "鹿児島県指宿市湊1丁目1-1", lat: 31.237194, lng: 130.642861, officialUrl: "https://local.pokemon.jp/manhole/desc/1/" },
         { id: 528, name: "指宿市（シャワーズ）", pref: "鹿児島県指宿市湯の浜5丁目26-29", lat: 31.228, lng: 130.653028, officialUrl: "https://local.pokemon.jp/manhole/desc/2/" },
         { id: 529, name: "指宿市（サンダース）", pref: "鹿児島県指宿市東方9300-1", lat: 31.255278, lng: 130.647639, officialUrl: "https://local.pokemon.jp/manhole/desc/3/" },
@@ -829,8 +835,6 @@
         { id: 533, name: "指宿市（リーフィア）", pref: "鹿児島県指宿市東方11915-5", lat: 31.263889, lng: 130.662917, officialUrl: "https://local.pokemon.jp/manhole/desc/7/" },
         { id: 534, name: "指宿市（グレイシア）", pref: "鹿児島県指宿市十二町2290", lat: 31.231056, lng: 130.644611, officialUrl: "https://local.pokemon.jp/manhole/desc/8/" },
         { id: 535, name: "指宿市（ニンフィア）", pref: "鹿児島県指宿市十二町2190", lat: 31.235444, lng: 130.641389, officialUrl: "https://local.pokemon.jp/manhole/desc/9/" },
-
-        // --- 沖縄県 ---
         { id: 536, name: "那覇市（ウィンデイ）", pref: "沖縄県牧志3-2", lat: 26.21641, lng: 127.68942, officialUrl: "https://local.pokemon.jp/manhole/desc/174/" },
         { id: 537, name: "宜野湾市（サニーゴ・ラブカス）", pref: "沖縄県真志喜4-2-1", lat: 26.2814375, lng: 127.7318125, officialUrl: "https://local.pokemon.jp/manhole/desc/175/" },
         { id: 538, name: "沖縄市（バチンキー・ラランテス）", pref: "沖縄県胡屋5-7-1", lat: 26.32766, lng: 127.803001, officialUrl: "https://local.pokemon.jp/manhole/desc/176/" },
@@ -855,14 +859,15 @@
     let markers = {};
     let selectedRoute = [];
     let visitedStatus = {};
+    let savedRoutes = []; // 保存されたルートリスト
     let currentActiveSpot = null;
     let db;
-    let selectedPrefs = new Set(); // チェックされている都道府県
+    let selectedPrefs = new Set();
 
     const STORAGE_KEY_VISITED = 'pokefuta_visited_status';
     const STORAGE_KEY_REGION = 'pokefuta_last_region';
+    const STORAGE_KEY_SAVED_ROUTES = 'pokefuta_saved_routes';
 
-    // IndexedDBの初期化（画像保存用）
     function initDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open("PokefutaPhotoDB", 1);
@@ -880,14 +885,12 @@
       });
     }
 
-    // 写真保存
     function savePhotoDB(id, dataUrl) {
       if (!db) return;
       const tx = db.transaction("photos", "readwrite");
       tx.objectStore("photos").put({ id: id, image: dataUrl });
     }
 
-    // 写真取得
     function getPhotoDB(id) {
       return new Promise((resolve) => {
         if (!db) return resolve(null);
@@ -908,26 +911,22 @@
       });
     }
 
-    const blueIcon = createIcon("#2563EB");  // 未訪問：青
-    const greenIcon = createIcon("#059669"); // 訪問済：緑
+    const blueIcon = createIcon("#2563EB");  
+    const greenIcon = createIcon("#059669"); 
 
     async function init() {
       await initDB();
       loadSettings();
 
       map = L.map('map').setView([38.5, 140.5], 7);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  subdomains: ['a', 'b', 'c'],
-  maxZoom: 19,
-  // OSM利用規約に準拠するためのアプリ識別子を指定
-  className: 'osm-tile'
-}).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
 
-      // 画面クリックで都道府県ドロップダウンを閉じる
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.pref-dropdown')) {
-          document.getElementById('prefDropdownContent').classList.remove('show');
+          const dropdown = document.getElementById('prefDropdownContent');
+          if (dropdown) dropdown.classList.remove('show');
         }
       });
 
@@ -941,20 +940,30 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
       const savedRegion = localStorage.getItem(STORAGE_KEY_REGION);
       if (savedRegion) {
-        document.getElementById('regionSelect').value = savedRegion;
+        const regionSelect = document.getElementById('regionSelect');
+        if (regionSelect) regionSelect.value = savedRegion;
       }
+
+      const savedRoutesData = localStorage.getItem(STORAGE_KEY_SAVED_ROUTES);
+      savedRoutes = savedRoutesData ? JSON.parse(savedRoutesData) : [];
     }
 
     function saveSettings() {
       localStorage.setItem(STORAGE_KEY_VISITED, JSON.stringify(visitedStatus));
-      localStorage.setItem(STORAGE_KEY_REGION, document.getElementById('regionSelect').value);
+      localStorage.setItem(STORAGE_KEY_SAVED_ROUTES, JSON.stringify(savedRoutes));
+      const regionSelect = document.getElementById('regionSelect');
+      if (regionSelect) {
+        localStorage.setItem(STORAGE_KEY_REGION, regionSelect.value);
+      }
     }
 
-    // 第1選択（地方）変更時の処理
     function handleRegionChange(isUserAction) {
-      const region = document.getElementById('regionSelect').value;
+      const regionSelect = document.getElementById('regionSelect');
+      if (!regionSelect) return;
+      
+      const region = regionSelect.value;
       const checkboxContainer = document.getElementById('prefCheckboxList');
-      checkboxContainer.innerHTML = '';
+      if (checkboxContainer) checkboxContainer.innerHTML = '';
       selectedPrefs.clear();
 
       let availablePrefs = [];
@@ -964,24 +973,26 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         availablePrefs = regionPrefMap[region];
       }
 
-      // チェックボックスリストを動的生成
-      availablePrefs.forEach(pref => {
-        selectedPrefs.add(pref); // 初期状態は全選択
-        const label = document.createElement('label');
-        label.className = 'pref-item';
-        label.innerHTML = `
-          <input type="checkbox" value="${pref}" checked onchange="handlePrefCheckboxChange()">
-          <span>${pref}</span>
-        `;
-        checkboxContainer.appendChild(label);
-      });
+      if (checkboxContainer) {
+        availablePrefs.forEach(pref => {
+          selectedPrefs.add(pref);
+          const label = document.createElement('label');
+          label.className = 'pref-item';
+          label.innerHTML = `
+            <input type="checkbox" value="${pref}" checked onchange="handlePrefCheckboxChange()">
+            <span>${pref}</span>
+          `;
+          checkboxContainer.appendChild(label);
+        });
+      }
 
       updatePrefDropdownBtnText();
       renderMarkers(isUserAction);
     }
 
     function togglePrefDropdown() {
-      document.getElementById('prefDropdownContent').classList.toggle('show');
+      const dropdown = document.getElementById('prefDropdownContent');
+      if (dropdown) dropdown.classList.toggle('show');
     }
 
     function handlePrefCheckboxChange() {
@@ -1005,6 +1016,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
     function updatePrefDropdownBtnText() {
       const btnText = document.getElementById('prefDropdownText');
+      if (!btnText) return;
+      
       const totalCount = document.querySelectorAll('#prefCheckboxList input[type="checkbox"]').length;
       
       if (selectedPrefs.size === 0) {
@@ -1016,9 +1029,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       }
     }
 
-    // 現在の選択条件（地方＋都道府県チェック＋ポケモン名検索）に基づいてピンを再描画
     function renderMarkers(isUserAction) {
-      const region = document.getElementById('regionSelect').value;
+      if (!map) return;
+      
+      const regionSelect = document.getElementById('regionSelect');
+      const region = regionSelect ? regionSelect.value : 'all';
       const searchText = document.getElementById('pokemonSearch') ? document.getElementById('pokemonSearch').value.trim().toLowerCase() : '';
 
       Object.values(markers).forEach(m => map.removeLayer(m));
@@ -1026,20 +1041,18 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
       if (isUserAction) clearSelected();
 
-      // データの絞り込み
       let targetSpots = [];
       if (region === 'all') {
         Object.values(rawSpotData).forEach(spots => {
-          targetSpots.push(...spots);
+          if (Array.isArray(spots)) targetSpots.push(...spots);
         });
       } else if (rawSpotData[region]) {
         targetSpots = rawSpotData[region];
       }
 
-      // 都道府県チェック ＆ ポケモン名でフィルター
       targetSpots = targetSpots.filter(spot => {
-        const matchPref = Array.from(selectedPrefs).some(pref => spot.pref.includes(pref));
-        const matchPokemon = searchText === '' || spot.name.toLowerCase().includes(searchText);
+        const matchPref = Array.from(selectedPrefs).some(pref => spot.pref && spot.pref.includes(pref));
+        const matchPokemon = searchText === '' || (spot.name && spot.name.toLowerCase().includes(searchText));
         return matchPref && matchPokemon;
       });
 
@@ -1060,11 +1073,12 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         bounds.push([spot.lat, spot.lng]);
       });
 
-      map.fitBounds(bounds, { padding: [30, 30] });
+      if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [30, 30] });
+      }
       if (isUserAction) saveSettings();
     }
 
-    // ミニウィンドウ（モーダル）を開く
     async function openModal(spot) {
       currentActiveSpot = spot;
       
@@ -1072,7 +1086,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       document.getElementById('modalPref').innerText = spot.pref;
       document.getElementById('modalOfficialLink').href = spot.officialUrl || "https://local.pokemon.jp/manhole/";
 
-      // 訪問ステータスボタン表示切り替え
       const isVisited = visitedStatus[spot.id] || false;
       const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
       const vBtn = document.getElementById('modalVisitBtn');
@@ -1084,7 +1097,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         vBtn.className = "btn-modal btn-visit";
       }
 
-      // 保存済み写真の取得
       const savedPhoto = await getPhotoDB(spot.id);
       const imgEl = document.getElementById('photoImg');
       const placeholderEl = document.getElementById('photoPlaceholder');
@@ -1106,7 +1118,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       currentActiveSpot = null;
     }
 
-    // ユーザー写真のアップロード処理
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (!file || !currentActiveSpot) return;
@@ -1115,14 +1126,12 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       reader.onload = (e) => {
         const dataUrl = e.target.result;
         
-        // UI更新
         const imgEl = document.getElementById('photoImg');
         const placeholderEl = document.getElementById('photoPlaceholder');
         imgEl.src = dataUrl;
         imgEl.style.display = 'block';
         placeholderEl.style.display = 'none';
 
-        // DBへ永続保存
         savePhotoDB(currentActiveSpot.id, dataUrl);
       };
       reader.readAsDataURL(file);
@@ -1228,7 +1237,95 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       updateRouteUI();
     }
 
-    // Googleマップ起動ロジック（現在地出発 / ポケふた間のみ切り替え対応）
+    /* --- ★新規追加機能: ルート保存・呼び出し処理★ --- */
+    function saveCurrentRoutePrompt() {
+      if (selectedRoute.length === 0) {
+        alert("保存するルートがありません。マップ上のピンをルートに追加してください。");
+        return;
+      }
+      if (savedRoutes.length >= 10) {
+        alert("保存できるルートは最大10件までです。新しいルートを保存するには不要なルートを削除してください。");
+        return;
+      }
+
+      const defaultName = selectedRoute[0].name.split('（')[0] + " などのルート";
+      const routeName = prompt("このルートの名前を入力してください:", defaultName);
+
+      if (routeName && routeName.trim() !== "") {
+        const newSavedRoute = {
+          id: Date.now(),
+          name: routeName.trim(),
+          spots: [...selectedRoute]
+        };
+        savedRoutes.push(newSavedRoute);
+        saveSettings();
+        alert(`「${routeName.trim()}」を保存しました！`);
+      }
+    }
+
+    function openSavedRoutesModal() {
+      renderSavedRoutesList();
+      document.getElementById('savedRoutesModal').style.display = 'flex';
+    }
+
+    function closeSavedRoutesModal() {
+      document.getElementById('savedRoutesModal').style.display = 'none';
+    }
+
+    function renderSavedRoutesList() {
+      const container = document.getElementById('savedRoutesContainer');
+      if (!container) return;
+
+      if (savedRoutes.length === 0) {
+        container.innerHTML = '<div style="padding:20px; color:#64748b; font-size:13px;">保存されたルートはありません。</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      savedRoutes.forEach((route, index) => {
+        const div = document.createElement('div');
+        div.className = 'saved-route-item';
+        div.innerHTML = `
+          <div class="saved-route-info">
+            <div class="saved-route-name">${route.name}</div>
+            <div class="saved-route-count">スポット: ${route.spots.length}箇所</div>
+          </div>
+          <div class="saved-route-btns">
+            <button class="btn-load-route" onclick="loadSavedRoute(${index})">呼び出す</button>
+            <button class="btn-del-route" onclick="deleteSavedRoute(${index})">削除</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function loadSavedRoute(index) {
+      const route = savedRoutes[index];
+      if (!route) return;
+
+      if (selectedRoute.length > 0) {
+        if (!confirm(`現在のルートリストを上書きして「${route.name}」を呼び出しますか？`)) {
+          return;
+        }
+      }
+
+      selectedRoute = [...route.spots];
+      updateRouteUI();
+      closeSavedRoutesModal();
+    }
+
+    function deleteSavedRoute(index) {
+      const route = savedRoutes[index];
+      if (!route) return;
+
+      if (confirm(`保存ルート「${route.name}」を削除しますか？`)) {
+        savedRoutes.splice(index, 1);
+        saveSettings();
+        renderSavedRoutesList();
+      }
+    }
+    /* --- ★ここまで★ --- */
+
     function openGoogleMaps() {
       if (selectedRoute.length === 0) return;
 
@@ -1261,7 +1358,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       window.open(url, '_blank');
     }
 
-    // バックアップデータのエクスポート
     async function exportBackupData() {
       if (!db) {
         alert("データベース準備中です。少し待ってから再試行してください。");
@@ -1279,6 +1375,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         version: 1,
         exportedAt: new Date().toISOString(),
         visitedStatus: visitedStatus,
+        savedRoutes: savedRoutes,
         lastRegion: document.getElementById('regionSelect').value,
         photos: photos
       };
@@ -1294,7 +1391,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       URL.revokeObjectURL(url);
     }
 
-    // バックアップデータのインポート
     function importBackupData(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1314,6 +1410,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           }
 
           visitedStatus = data.visitedStatus || {};
+          savedRoutes = data.savedRoutes || [];
           saveSettings();
 
           if (data.photos && Array.isArray(data.photos) && db) {
@@ -1334,187 +1431,113 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       event.target.value = "";
     }
 
-    window.onload = init;
-  </script>
-
-  <!-- SNSシェア用モーダル ＆ スタイル -->
-  <style>
-.share-modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
-    z-index: 10000; padding: 16px; box-sizing: border-box;
-    pointer-events: auto; /* タップイベントを確実に受け取る */
-  }
-  .share-modal-content {
-    background: #fff; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
-    border-radius: 12px; padding: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
-    position: relative;
-    z-index: 10001;
-  }
-    /* カード画像のデザイン (ネイビー×エメラルドグリーン) */
-    #shareCard {
-      background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px;
-      text-align: left; font-family: sans-serif; color: #0f172a; margin: 12px 0;
-    }
-    .card-header {
-      background: linear-gradient(135deg, #1e3a8a, #059669); color: white;
-      padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 12px;
-    }
-    .card-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 12px;
-    }
-    .card-img-item {
-      width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;
-    }
-    .card-footer {
-      border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
-    }
-  </style>
-
-  <div id="shareModal" class="share-modal-overlay">
-    <div class="share-modal-content">
-      <h3 style="margin-top:0; color:#1e3a8a;">📸 今日の訪問記録カード</h3>
-      
-      <!-- ★追加：一言メモ入力欄★ -->
-      <div style="margin: 8px 0; text-align: left;">
-        <label style="font-size: 11px; font-weight: bold; color: #475569;">💬 カードに入れる一言メモ (任意):</label>
-        <input type="text" id="shareMemoInput" placeholder="例：香川ヤドン巡り完了！" oninput="updateCardMemo()" style="width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; margin-top: 2px; box-sizing: border-box;">
-      </div>
-
-      <!-- ここが生成される画像エリア -->
-      <div id="shareCard">
-        <div class="card-header">
-          <div style="font-size: 16px;">ポケふたナビ 訪問記録</div>
-          <div id="shareCardDate" style="font-size: 11px; opacity: 0.9; margin-top: 2px;"></div>
-        </div>
-
-        <div id="shareCardContent"></div>
-
-        <!-- ★追加：一言メモのカード内表示エリア★ -->
-        <div id="shareCardMemo" style="display:none; background:#f1f5f9; padding:8px; border-radius:6px; font-size:12px; color:#334155; margin-bottom:10px; font-style:italic; border-left:3px solid #059669;"></div>
-
-        <div class="card-footer">
-          <span id="shareCardCount">本日訪問: 0箇所</span>
-          <span>akabixi.github.io/pokelid_navi.ver1.01/</span>
-        </div>
-      </div>
-
-      <!-- プレビュー生成用エリア -->
-      <div id="previewArea" style="display:none; margin-bottom:12px;">
-        <p style="font-size: 12px; color: #059669; font-weight: bold;">👇 画像長押し（または右クリック）で保存してください！</p>
-        <img id="generatedImg" style="width: 100%; border-radius: 8px; border: 1px solid #ccc;">
-      </div>
-
-      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
-        <button onclick="generateCardImage()" style="background:#059669; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">① 画像を生成</button>
-        <button onclick="postToX()" style="background:#000000; color:white; border:none; padding:10px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">② Xでポスト</button>
-        <button onclick="closeShareModal()" style="background:#94a3b8; color:white; border:none; padding:10px 10px; border-radius:6px; cursor:pointer;">閉じる</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // 一言メモのリアルタイム更新関数
     function updateCardMemo() {
-      const memoText = document.getElementById('shareMemoInput').value.trim();
+      const memoInput = document.getElementById('shareMemoInput');
+      const memoText = memoInput ? memoInput.value.trim() : '';
       const memoEl = document.getElementById('shareCardMemo');
       
-      if (memoText) {
-        memoEl.innerText = `“ ${memoText} ”`;
-        memoEl.style.display = 'block';
-      } else {
+      if (memoEl) {
+        if (memoText) {
+          memoEl.innerText = '“ ' + memoText + ' ”';
+          memoEl.style.display = 'block';
+        } else {
+          memoEl.innerText = '';
+          memoEl.style.display = 'none';
+        }
+      }
+    }
+
+    async function openShareModal() {
+      const today = new Date();
+      const todayStr = today.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+      const todayKey = today.toISOString().slice(0, 10);
+      
+      document.getElementById('shareCardDate').innerText = todayStr;
+      
+      if (document.getElementById('shareMemoInput')) {
+        document.getElementById('shareMemoInput').value = '';
+      }
+      const memoEl = document.getElementById('shareCardMemo');
+      if (memoEl) {
         memoEl.innerText = '';
         memoEl.style.display = 'none';
       }
-    }
 
-// シェア用モーダルを開く関数（縦崩れ対策＆文法エラー修正版）
-  async function openShareModal() {
-    const today = new Date();
-    const todayStr = today.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
-    const todayKey = today.toISOString().slice(0, 10);
-    
-    document.getElementById('shareCardDate').innerText = todayStr;
-    
-    // 入力欄と表示用メモを初期化
-    if (document.getElementById('shareMemoInput')) {
-      document.getElementById('shareMemoInput').value = '';
-    }
-    const memoEl = document.getElementById('shareCardMemo');
-    if (memoEl) {
-      memoEl.innerText = '';
-      memoEl.style.display = 'none';
-    }
+      const contentArea = document.getElementById('shareCardContent');
+      contentArea.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">データを読み込み中...</div>';
+      
+      let todaySpots = [];
+      let todayPhotos = [];
 
-    const contentArea = document.getElementById('shareCardContent');
-    contentArea.innerHTML = '<div style="text-align:center; padding:10px; color:#666;">データを読み込み中...</div>';
-    
-    let todaySpots = [];
-    let todayPhotos = [];
+      try {
+        for (const regionKey in rawSpotData) {
+          const spots = rawSpotData[regionKey];
+          if (Array.isArray(spots)) {
+            for (const spot of spots) {
+              const status = visitedStatus[spot.id];
+              
+              if (status) {
+                const isVisited = typeof status === 'object' ? status.visited : !!status;
+                const visitDate = typeof status === 'object' ? status.date : todayKey;
 
-    try {
-      for (const regionKey in rawSpotData) {
-        const spots = rawSpotData[regionKey];
-        for (const spot of spots) {
-          const status = visitedStatus[spot.id];
-          
-          if (status) {
-            const isVisited = typeof status === 'object' ? status.visited : !!status;
-            const visitDate = typeof status === 'object' ? status.date : todayKey;
-
-            if (isVisited && visitDate === todayKey) {
-              const photoData = await getPhotoDB(spot.id);
-              if (photoData) {
-                todayPhotos.push({ name: spot.name, img: photoData });
+                if (isVisited && visitDate === todayKey) {
+                  const photoData = await getPhotoDB(spot.id);
+                  if (photoData) {
+                    todayPhotos.push({ name: spot.name, img: photoData });
+                  }
+                  todaySpots.push(spot.name);
+                }
               }
-              todaySpots.push(spot.name);
             }
           }
         }
+      } catch (e) {
+        console.error("データ取得エラー:", e);
       }
-    } catch (e) {
-      console.error("データ取得エラー:", e);
+
+      contentArea.innerHTML = '';
+
+      if (todayPhotos.length > 0) {
+        const grid = document.createElement('div');
+        grid.className = 'card-grid';
+        
+        todayPhotos.forEach(item => {
+          const imgWrap = document.createElement('div');
+          imgWrap.style.position = 'relative';
+          imgWrap.innerHTML = 
+            '<img src="' + item.img + '" class="card-img-item">' +
+            '<div style="position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:9px; padding:2px 4px; border-radius:3px; max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' +
+              item.name +
+            '</div>';
+          grid.appendChild(imgWrap);
+        });
+        contentArea.appendChild(grid);
+
+      } else if (todaySpots.length > 0) {
+        let listHtml = '<div style="padding: 10px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155; width: 100%; box-sizing: border-box;">' +
+          '<b style="display: block; width: 100%; white-space: nowrap;">📍 本日訪問したポケふた (' + todaySpots.length + '箇所)</b>' +
+          '<ul style="margin: 6px 0 0 18px; padding: 0; width: 100%;">';
+        
+        todaySpots.forEach(name => {
+          listHtml += '<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin-bottom: 2px;">' + name + '</li>';
+        });
+        listHtml += '</ul></div>';
+        contentArea.innerHTML = listHtml;
+
+      } else {
+        contentArea.innerHTML = '<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>';
+      }
+
+      document.getElementById('shareCardCount').innerText = '本日訪問: ' + todaySpots.length + '箇所';
+      document.getElementById('shareModal').style.display = 'flex';
     }
 
-    contentArea.innerHTML = '';
-
-    if (todayPhotos.length > 0) {
-      // 【パターンA：写真あり】
-      const grid = document.createElement('div');
-      grid.className = 'card-grid';
-      
-      todayPhotos.forEach(item => {
-        const imgWrap = document.createElement('div');
-        imgWrap.style.position = 'relative';
-        imgWrap.innerHTML = 
-          '<img src="' + item.img + '" class="card-img-item">' +
-          '<div style="position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.6); color:#fff; font-size:9px; padding:2px 4px; border-radius:3px; max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' +
-            item.name +
-          '</div>';
-        grid.appendChild(imgWrap);
-      });
-      contentArea.appendChild(grid);
-
-    } else if (todaySpots.length > 0) {
-      // 【パターンB：写真なし】本日訪問のリスト表示（html2canvas縦崩れ防止対策版）
-      let listHtml = '<div style="padding: 10px; background: #fff; border-radius: 6px; font-size: 13px; color: #334155; width: 100%; box-sizing: border-box;">' +
-        '<b style="display: block; width: 100%; white-space: nowrap;">📍 本日訪問したポケふた (' + todaySpots.length + '箇所)</b>' +
-        '<ul style="margin: 6px 0 0 18px; padding: 0; width: 100%;">';
-      
-      todaySpots.forEach(name => {
-        listHtml += '<li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin-bottom: 2px;">' + name + '</li>';
-      });
-      listHtml += '</ul></div>';
-      contentArea.innerHTML = listHtml;
-
-    } else {
-      // 【パターンC：本日訪問がまだない場合】
-      contentArea.innerHTML = '<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>';
+    function closeShareModal() {
+      const modal = document.getElementById('shareModal');
+      const preview = document.getElementById('previewArea');
+      if (modal) modal.style.display = 'none';
+      if (preview) preview.style.display = 'none';
     }
-
-    document.getElementById('shareCardCount').innerText = '本日訪問: ' + todaySpots.length + '箇所';
-    document.getElementById('shareModal').style.display = 'flex';
-  }
 
     function generateCardImage() {
       const cardElem = document.getElementById('shareCard');
@@ -1528,20 +1551,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
     function postToX() {
       const countText = document.getElementById('shareCardCount').innerText;
-      const memoText = document.getElementById('shareMemoInput').value.trim();
-      const memoFormatted = memoText ? `\n💬 ${memoText}\n` : '';
+      const memoInput = document.getElementById('shareMemoInput');
+      const memoText = memoInput ? memoInput.value.trim() : '';
+      const memoFormatted = memoText ? '\n💬 ' + memoText + '\n' : '';
       
-      const text = encodeURIComponent(`今日のポケふた巡り完了！\n${countText}！📸${memoFormatted}\n#ポケふた #ポケふたナビ\n`);
-      const url = encodeURIComponent(`https://akabixi.github.io/pokelid_navi.ver1.01/`);
-      window.open(`https://x.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+      const text = encodeURIComponent('今日のポケふた巡り完了！\n' + countText + '！📸' + memoFormatted + '\n#ポケふた #ポケふたナビ\n');
+      const url = encodeURIComponent('https://akabixi.github.io/pokelid_navi.ver1.01/');
+      window.open('https://x.com/intent/tweet?text=' + text + '&url=' + url, '_blank');
     }
-    // シェア用モーダルを閉じる関数（安全対策版）
-  function closeShareModal() {
-    const modal = document.getElementById('shareModal');
-    const preview = document.getElementById('previewArea');
-    if (modal) modal.style.display = 'none';
-    if (preview) preview.style.display = 'none';
-  }
+
+    window.onload = init;
   </script>
 </body>
 </html>
