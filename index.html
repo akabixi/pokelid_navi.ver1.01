@@ -99,8 +99,22 @@
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
       z-index: 2; 
     }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; }
-    .panel-title { font-size: 14px; font-weight: bold; color: #374151; }
+    
+    /* ヘッダー・タイトル部分の調整 */
+    .panel-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      gap: 6px;
+      overflow: hidden;
+    }
+    .panel-title { 
+      font-size: 14px; 
+      font-weight: bold; 
+      color: #374151; 
+      white-space: nowrap; 
+      flex-shrink: 0;
+    }
 
     .route-mode-selector {
       display: flex;
@@ -135,12 +149,38 @@
     button.btn-main { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
     .btn-primary { background: #059669; color: white; }
     .btn-primary:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
-    .btn-clear { background: #ef4444; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; }
 
-    .btn-backup-group { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
-    .btn-backup { background: #4b5563; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
-    .btn-restore { background: #2563eb; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; display: inline-block; }
-    .btn-save-route { background: #d97706; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
+    /* ★サブボタン群の横スリム・横スクロール化対応★ */
+    .btn-backup-group { 
+      display: flex; 
+      gap: 4px; 
+      align-items: center; 
+      overflow-x: auto; 
+      white-space: nowrap; 
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .btn-backup-group::-webkit-scrollbar { display: none; } /* スクロールバー非表示 */
+
+    .btn-panel-sub {
+      padding: 4px 6px;
+      font-size: 10.5px;
+      border-radius: 4px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .btn-save-route { background: #d97706; color: white; }
+    .btn-list-route { background: #0284c7; color: white; }
+    .btn-backup { background: #4b5563; color: white; }
+    .btn-restore { background: #2563eb; color: white; }
+    .btn-clear { background: #ef4444; color: white; }
 
     .marker-pin { width: 24px; height: 36px; }
 
@@ -173,7 +213,6 @@
       border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 12px; color: #475569; display: flex; justify-content: space-between;
     }
 
-    /* 保存済みルートモーダル用スタイル */
     .saved-route-item {
       display: flex; justify-content: space-between; align-items: center;
       background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 8px; text-align: left;
@@ -253,14 +292,14 @@
     <div class="panel-header">
       <span class="panel-title">巡回ルート</span>
       <div class="btn-backup-group">
-        <button class="btn-save-route" onclick="saveCurrentRoutePrompt()">💾 ルート保存</button>
-        <button class="btn-save-route" style="background:#0284c7;" onclick="openSavedRoutesModal()">📂 保存リスト</button>
-        <button class="btn-backup" onclick="exportBackupData()">💾 バックアップ</button>
-        <label class="btn-restore">
+        <button class="btn-panel-sub btn-save-route" onclick="saveCurrentRoutePrompt()">💾 保存</button>
+        <button class="btn-panel-sub btn-list-route" onclick="openSavedRoutesModal()">📂 リスト</button>
+        <button class="btn-panel-sub btn-backup" onclick="exportBackupData()">💾 退避</button>
+        <label class="btn-panel-sub btn-restore">
           📂 復元
           <input type="file" accept=".json" onchange="importBackupData(event)" style="display:none;">
         </label>
-        <button class="btn-clear" onclick="clearSelected()">クリア</button>
+        <button class="btn-panel-sub btn-clear" onclick="clearSelected()">クリア</button>
       </div>
     </div>
 
@@ -859,7 +898,7 @@
     let markers = {};
     let selectedRoute = [];
     let visitedStatus = {};
-    let savedRoutes = []; // 保存されたルートリスト
+    let savedRoutes = [];
     let currentActiveSpot = null;
     let db;
     let selectedPrefs = new Set();
@@ -1237,7 +1276,6 @@
       updateRouteUI();
     }
 
-    /* --- ★新規追加機能: ルート保存・呼び出し処理★ --- */
     function saveCurrentRoutePrompt() {
       if (selectedRoute.length === 0) {
         alert("保存するルートがありません。マップ上のピンをルートに追加してください。");
@@ -1324,7 +1362,6 @@
         renderSavedRoutesList();
       }
     }
-    /* --- ★ここまで★ --- */
 
     function openGoogleMaps() {
       if (selectedRoute.length === 0) return;
