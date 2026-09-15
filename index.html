@@ -100,7 +100,6 @@
       z-index: 2; 
     }
     
-    /* ヘッダー・タイトル部分の調整 */
     .panel-header { 
       display: flex; 
       justify-content: space-between; 
@@ -150,7 +149,6 @@
     .btn-primary { background: #059669; color: white; }
     .btn-primary:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
 
-    /* ★サブボタン群の横スリム・横スクロール化対応★ */
     .btn-backup-group { 
       display: flex; 
       gap: 4px; 
@@ -160,7 +158,7 @@
       -webkit-overflow-scrolling: touch;
       padding-bottom: 2px;
     }
-    .btn-backup-group::-webkit-scrollbar { display: none; } /* スクロールバー非表示 */
+    .btn-backup-group::-webkit-scrollbar { display: none; }
 
     .btn-panel-sub {
       padding: 4px 6px;
@@ -1330,6 +1328,7 @@
           </div>
           <div class="saved-route-btns">
             <button class="btn-load-route" onclick="loadSavedRoute(${index})">呼び出す</button>
+            <button class="btn-load-route" style="background:#059669;" onclick="markSavedRouteVisited(${index})">✓ 一括訪問</button>
             <button class="btn-del-route" onclick="deleteSavedRoute(${index})">削除</button>
           </div>
         `;
@@ -1349,6 +1348,30 @@
 
       selectedRoute = [...route.spots];
       updateRouteUI();
+      closeSavedRoutesModal();
+    }
+
+    /* ★保存済みルートから一括訪問済みにする処理★ */
+    function markSavedRouteVisited(index) {
+      const route = savedRoutes[index];
+      if (!route || !route.spots || route.spots.length === 0) return;
+
+      if (!confirm(`「${route.name}」に含まれる ${route.spots.length} 箇所のポケふたをすべて「訪問済み」にしますか？`)) {
+        return;
+      }
+
+      const todayKey = new Date().toISOString().slice(0, 10);
+
+      route.spots.forEach(spot => {
+        visitedStatus[spot.id] = { visited: true, date: todayKey };
+        
+        if (markers[spot.id]) {
+          markers[spot.id].setIcon(greenIcon);
+        }
+      });
+
+      saveSettings();
+      alert(`「${route.name}」の全 ${route.spots.length} 箇所を訪問済みに更新しました！`);
       closeSavedRoutesModal();
     }
 
