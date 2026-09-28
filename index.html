@@ -1351,7 +1351,6 @@
       closeSavedRoutesModal();
     }
 
-    /* ★保存済みルートから一括訪問済みにする処理★ */
     function markSavedRouteVisited(index) {
       const route = savedRoutes[index];
       if (!route || !route.spots || route.spots.length === 0) return;
@@ -1507,6 +1506,7 @@
       }
     }
 
+    /* ★修正版: 当日（今日）訪問したポケふたのみを厳密に抽出する★ */
     async function openShareModal() {
       const today = new Date();
       const todayStr = today.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -1536,11 +1536,9 @@
             for (const spot of spots) {
               const status = visitedStatus[spot.id];
               
-              if (status) {
-                const isVisited = typeof status === 'object' ? status.visited : !!status;
-                const visitDate = typeof status === 'object' ? status.date : todayKey;
-
-                if (isVisited && visitDate === todayKey) {
+              // 訪問済みかつ、登録日付が「今日（todayKey）」と一致するものだけを抽出
+              if (status && typeof status === 'object') {
+                if (status.visited === true && status.date === todayKey) {
                   const photoData = await getPhotoDB(spot.id);
                   if (photoData) {
                     todayPhotos.push({ name: spot.name, img: photoData });
@@ -1585,7 +1583,7 @@
         contentArea.innerHTML = listHtml;
 
       } else {
-        contentArea.innerHTML = '<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>';
+        contentArea.innerHTML = '<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>今日マップで「訪問済み」にしたポケふたがここに表示されます！</div>';
       }
 
       document.getElementById('shareCardCount').innerText = '本日訪問: ' + todaySpots.length + '箇所';
