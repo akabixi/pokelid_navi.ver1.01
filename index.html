@@ -39,29 +39,31 @@
     header { 
       background: #1e3a8a; 
       color: white; 
-      padding: 10px 12px; 
-      padding-top: calc(10px + env(safe-area-inset-top)); 
+      padding: 8px 12px; 
+      padding-top: calc(8px + env(safe-area-inset-top)); 
       display: flex; 
-      gap: 8px; 
+      gap: 6px; 
       align-items: center; 
       justify-content: space-between; 
       z-index: 10; 
       box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
       flex-wrap: wrap; 
     }
-    header h1 { font-size: 16px; font-weight: bold; }
+    header h1 { font-size: 15px; font-weight: bold; }
     
     .filter-group { display: flex; gap: 6px; align-items: center; position: relative; flex-wrap: wrap; }
-    select { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; }
+    select { padding: 5px 8px; border-radius: 6px; border: none; font-size: 12px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; }
 
     .pref-dropdown { position: relative; }
-    .pref-dropdown-btn { padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .pref-dropdown-btn { padding: 5px 8px; border-radius: 6px; border: none; font-size: 12px; background: white; font-weight: bold; color: #1e3a8a; cursor: pointer; display: flex; align-items: center; gap: 4px; }
     .pref-dropdown-content { display: none; position: absolute; right: 0; top: 110%; background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 8px; max-height: 250px; overflow-y: auto; z-index: 100; min-width: 160px; color: #374151; }
     .pref-dropdown-content.show { display: block; }
     .pref-item { display: flex; align-items: center; gap: 6px; padding: 4px 6px; font-size: 13px; cursor: pointer; }
     .pref-item:hover { background: #f3f4f6; border-radius: 4px; }
     .pref-actions { display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 6px; font-size: 11px; }
     .pref-action-btn { background: none; border: none; color: #2563eb; font-weight: bold; cursor: pointer; }
+
+    .x-report-link { color: #93c5fd; font-size: 11px; font-weight: bold; text-decoration: underline; white-space: nowrap; margin-left: 2px; }
 
     #map { flex: 1; width: 100%; z-index: 1; }
 
@@ -87,15 +89,16 @@
     .btn-visited { background: #059669; color: white; }
     .btn-add-route { background: #2563eb; color: white; }
 
+    /* 下部パネル: 画面高さを拡大 */
     .control-panel { 
       background: white; 
       border-top: 2px solid #e5e7eb; 
-      padding: 12px; 
-      padding-bottom: calc(12px + env(safe-area-inset-bottom)); 
-      max-height: 40vh; 
+      padding: 10px 12px; 
+      padding-bottom: calc(10px + env(safe-area-inset-bottom)); 
+      max-height: 50vh; 
       display: flex; 
       flex-direction: column; 
-      gap: 8px; 
+      gap: 6px; 
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
       z-index: 2; 
     }
@@ -108,7 +111,7 @@
       overflow: hidden;
     }
     .panel-title { 
-      font-size: 14px; 
+      font-size: 13px; 
       font-weight: bold; 
       color: #374151; 
       white-space: nowrap; 
@@ -119,9 +122,9 @@
       display: flex;
       gap: 12px;
       background: #f3f4f6;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: bold;
       color: #374151;
       align-items: center;
@@ -134,20 +137,40 @@
       cursor: pointer;
     }
     
-    .route-list-container { flex: 1; overflow-y: auto; margin-top: 4px; min-height: 50px; }
-    .route-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .route-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 8px 10px; border-radius: 6px; border: 1px solid #e5e7eb; font-size: 13px; }
-    .badge { background: #2563eb; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; margin-right: 8px; flex-shrink: 0; }
+    .route-list-container { flex: 1; overflow-y: auto; margin-top: 2px; min-height: 80px; }
+    .route-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .route-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; font-size: 12px; }
+    .badge { background: #2563eb; color: white; border-radius: 50%; width: 20px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; margin-right: 6px; flex-shrink: 0; }
 
     .item-actions { display: flex; gap: 4px; align-items: center; }
-    .btn-action { background: #e5e7eb; color: #374151; border: none; border-radius: 4px; width: 28px; height: 28px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .btn-action { background: #e5e7eb; color: #374151; border: none; border-radius: 4px; width: 26px; height: 26px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
     .btn-delete { background: #fee2e2; color: #ef4444; }
 
-    .btn-group { display: flex; gap: 8px; margin-top: 2px; }
-    button.btn-main { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; }
+    /* メインボタンの1行半々レイアウトCSS */
+    .btn-group-main { 
+      display: flex !important; 
+      gap: 6px !important; 
+      margin-top: 4px !important; 
+      width: 100% !important;
+    }
+    .btn-group-main button { 
+      flex: 1 !important; 
+      padding: 10px 4px !important; 
+      border: none !important; 
+      border-radius: 6px !important; 
+      font-weight: bold !important; 
+      font-size: 12px !important; 
+      cursor: pointer !important; 
+      white-space: nowrap !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 2px !important;
+    }
     .btn-primary { background: #059669; color: white; }
     .btn-primary:disabled { background: #d1d5db; color: #9ca3af; cursor: not-allowed; }
+    .btn-share-split { background-color: #2563eb; color: white; }
 
     .btn-backup-group { 
       display: flex; 
@@ -228,7 +251,7 @@
   <header>
     <h1>ポケふたナビ</h1>
     <div class="filter-group">
-      <input type="text" id="pokemonSearch" placeholder="🔍 ポケモン検索" oninput="renderMarkers(false)" style="padding: 6px 10px; border-radius: 6px; border: none; font-size: 13px; font-weight: bold; width: 120px; color: #1e3a8a;">
+      <input type="text" id="pokemonSearch" placeholder="🔍 ポケモン検索" oninput="renderMarkers(false)" style="padding: 5px 8px; border-radius: 6px; border: none; font-size: 12px; font-weight: bold; width: 110px; color: #1e3a8a;">
 
       <select id="regionSelect" onchange="handleRegionChange(true)">
         <option value="all">全国</option>
@@ -254,6 +277,9 @@
           <div id="prefCheckboxList"></div>
         </div>
       </div>
+
+      <!-- X不具合報告リンク -->
+      <a href="https://x.com/akabixi" target="_blank" rel="noopener noreferrer" class="x-report-link">ご意見・報告 ↗</a>
     </div>
   </header>
 
@@ -312,22 +338,14 @@
       </label>
     </div>
 
-    <div style="font-size: 11px; text-align: center; color: #6b7280; margin-top: 4px;">
-      ご意見・不具合報告は <a href="https://x.com/akabixi" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">X (@akabixi)</a> まで
-    </div>
-
     <div class="route-list-container">
       <ul id="routeList" class="route-list"></ul>
     </div>
 
-    <div class="btn-group">
-      <button id="navBtn" class="btn-main btn-primary" onclick="openGoogleMaps()" disabled>Googleマップでルートを開く</button>
-    </div>
-    
-    <div style="margin-top: 8px;">
-      <button id="shareBtn" class="btn-main" onclick="openShareModal()" style="background-color: #059669; color: white; width: 100%; font-weight: bold; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">
-        📸 今日の記録をXでシェア
-      </button>
+    <!-- 1行半々の起動・シェアボタン -->
+    <div class="btn-group-main">
+      <button id="navBtn" class="btn-primary" onclick="openGoogleMaps()" disabled>🗺️ Googleマップ起動</button>
+      <button id="shareBtn" class="btn-share-split" onclick="openShareModal()">📸 今日の記録をシェア</button>
     </div>
   </div>
 
@@ -1351,7 +1369,6 @@
       closeSavedRoutesModal();
     }
 
-    /* ★保存済みルートから一括訪問済みにする処理★ */
     function markSavedRouteVisited(index) {
       const route = savedRoutes[index];
       if (!route || !route.spots || route.spots.length === 0) return;
@@ -1536,11 +1553,8 @@
             for (const spot of spots) {
               const status = visitedStatus[spot.id];
               
-              if (status) {
-                const isVisited = typeof status === 'object' ? status.visited : !!status;
-                const visitDate = typeof status === 'object' ? status.date : todayKey;
-
-                if (isVisited && visitDate === todayKey) {
+              if (status && typeof status === 'object') {
+                if (status.visited === true && status.date === todayKey) {
                   const photoData = await getPhotoDB(spot.id);
                   if (photoData) {
                     todayPhotos.push({ name: spot.name, img: photoData });
@@ -1585,7 +1599,7 @@
         contentArea.innerHTML = listHtml;
 
       } else {
-        contentArea.innerHTML = '<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>マップ上のポケふたを「訪問済み」にするとここに表示されます！</div>';
+        contentArea.innerHTML = '<div style="padding:15px; text-align:center; color:#64748b; font-size:13px;">本日訪問済みにしたポケふたがありません。<br>今日マップで「訪問済み」にしたポケふたがここに表示されます！</div>';
       }
 
       document.getElementById('shareCardCount').innerText = '本日訪問: ' + todaySpots.length + '箇所';
