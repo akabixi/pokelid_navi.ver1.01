@@ -140,7 +140,7 @@
     .route-list-container { flex: 1; overflow-y: auto; margin-top: 2px; min-height: 80px; }
     .route-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
     .route-item { display: flex; justify-content: space-between; align-items: center; background: #f9fafb; padding: 6px 8px; border-radius: 6px; border: 1px solid #e5e7eb; font-size: 12px; }
-    .badge { background: #2563eb; color: white; border-radius: 50%; width: 20px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; margin-right: 6px; flex-shrink: 0; }
+    .badge { background: #d97706; color: white; border-radius: 50%; width: 20px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; margin-right: 6px; flex-shrink: 0; }
 
     .item-actions { display: flex; gap: 4px; align-items: center; }
     .btn-action { background: #e5e7eb; color: #374151; border: none; border-radius: 4px; width: 26px; height: 26px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -203,7 +203,7 @@
     .btn-restore { background: #2563eb; color: white; }
     .btn-clear { background: #ef4444; color: white; }
 
-    .marker-pin { width: 24px; height: 36px; }
+    .marker-pin { width: 26px; height: 38px; }
 
     .share-modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -454,7 +454,7 @@
         { id: 41, name: "美幌町（アローラロコン・ロコン・ハネッコ）", pref: "北海道 美幌町（美幌町字新町3丁目97）", lat: 43.836455, lng: 144.105878, officialUrl: "https://local.pokemon.jp/manhole/desc/307/" },
         { id: 42, name: "美瑛町（アローラロコン・ヒスイウォーグル）", pref: "北海道 美瑛町（本町1丁目9番21号）", lat: 43.59198, lng: 142.46372, officialUrl: "https://local.pokemon.jp/manhole/desc/324/" },
         { id: 43, name: "札幌市（ロコン・ケッキング）", pref: "北海道 札幌市（南区定山渓温泉東３丁目212）", lat: 42.9661562, lng: 141.1669585, officialUrl: "https://local.pokemon.jp/manhole/desc/438/" },
-        { id: 44, name: "砂川市（アローラロコン・ロコン・ペロリーム）", pref: "北海道 砂川市（西１条北２丁目１番２０号）", lat: 43.493037, lng: 141.907367, officialUrl: "https://local.pokemon.jp/manhole/desc/439/" },
+        { id: 44, name: "砂川市（アローラロコン・ロコン・ペロリーム）", pref: "北海道 砂川市（西１条北２丁目１番２0号）", lat: 43.493037, lng: 141.907367, officialUrl: "https://local.pokemon.jp/manhole/desc/439/" },
         { id: 45, name: "由仁町（アローラロコン・ロコン・ヤクデ）", pref: "北海道 由仁町（東栄87-1）", lat: 43.01186, lng: 141.78697, officialUrl: "https://local.pokemon.jp/manhole/desc/440/" },
         { id: 46, name: "厚沢部町（アローラロコン・ロコン・ミノマダム）", pref: "北海道 厚沢部町（緑町72-1）", lat: 41.916775, lng: 140.216556, officialUrl: "https://local.pokemon.jp/manhole/desc/441/" },
         { id: 47, name: "幌延町（アローラロコン・ロコン・フラベベ）", pref: "北海道 幌延町（北進398-1）", lat: 45.040817, lng: 141.8612, officialUrl: "https://local.pokemon.jp/manhole/desc/442/" },
@@ -956,18 +956,37 @@
       });
     }
 
-    function createIcon(colorHex) {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" class="marker-pin"><path fill="${colorHex}" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z"/><circle cx="12" cy="12" r="5" fill="#FFFFFF"/></svg>`;
+    // アイコン生成関数（ルート選択時はオレンジ＋数字表示）
+    function createIcon(colorHex, labelNumber = null) {
+      const numberSvg = labelNumber ? `<text x="12" y="15" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle" dominant-baseline="central">${labelNumber}</text>` : `<circle cx="12" cy="12" r="5" fill="#FFFFFF"/>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" class="marker-pin"><path fill="${colorHex}" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.373 0 0 5.373 0 12c0 9 12 24 12 24s12-15 12-24c0-6.627-5.373-12-12-12z"/>${numberSvg}</svg>`;
       return L.divIcon({
         className: '',
         html: svg,
-        iconSize: [24, 36],
-        iconAnchor: [12, 36]
+        iconSize: [26, 38],
+        iconAnchor: [13, 38]
       });
     }
 
-    const blueIcon = createIcon("#2563EB");  
-    const greenIcon = createIcon("#059669"); 
+    // スポットの状態に応じた適切なアイコンを返す
+    function getMarkerIcon(spotId) {
+      const routeIndex = selectedRoute.findIndex(s => s.id === spotId);
+      if (routeIndex !== -1) {
+        // ルート選択中：オレンジ＋順番数字
+        return createIcon("#d97706", routeIndex + 1);
+      }
+      
+      const isVisited = visitedStatus[spotId] || false;
+      const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
+      
+      if (isVisitedBool) {
+        // 訪問済：緑
+        return createIcon("#059669");
+      } else {
+        // 未訪問：青
+        return createIcon("#2563EB");
+      }
+    }
 
     async function init() {
       await initDB();
@@ -1115,11 +1134,10 @@
 
       const bounds = [];
       targetSpots.forEach(spot => {
-        const isVisited = visitedStatus[spot.id] || false;
-        const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
+        const markerIcon = getMarkerIcon(spot.id);
         
         const marker = L.marker([spot.lat, spot.lng], {
-          icon: isVisitedBool ? greenIcon : blueIcon
+          icon: markerIcon
         }).addTo(map);
         
         marker.on('click', () => openModal(spot));
@@ -1132,6 +1150,16 @@
         map.fitBounds(bounds, { padding: [30, 30] });
       }
       if (isUserAction) saveSettings();
+    }
+
+    // 全ピンの表示状態を一括更新する
+    function updateAllMarkerIcons() {
+      Object.keys(markers).forEach(spotId => {
+        const id = parseInt(spotId, 10);
+        if (markers[id]) {
+          markers[id].setIcon(getMarkerIcon(id));
+        }
+      });
     }
 
     async function openModal(spot) {
@@ -1209,7 +1237,7 @@
       const isVisited = visitedStatus[id].visited;
 
       if (markers[id]) {
-        markers[id].setIcon(isVisited ? greenIcon : blueIcon);
+        markers[id].setIcon(getMarkerIcon(id));
       }
 
       const vBtn = document.getElementById('modalVisitBtn');
@@ -1260,6 +1288,7 @@
       if (selectedRoute.length === 0) {
         listEl.innerHTML = '<li style="color:#9ca3af; font-size:12px; text-align:center; padding:12px 8px;">マップ上のピンをタップし「ルートに追加」してください。</li>';
         navBtn.disabled = true;
+        updateAllMarkerIcons();
         return;
       }
 
@@ -1285,6 +1314,7 @@
       });
 
       navBtn.disabled = false;
+      updateAllMarkerIcons();
     }
 
     function clearSelected() {
@@ -1381,13 +1411,10 @@
 
       route.spots.forEach(spot => {
         visitedStatus[spot.id] = { visited: true, date: todayKey };
-        
-        if (markers[spot.id]) {
-          markers[spot.id].setIcon(greenIcon);
-        }
       });
 
       saveSettings();
+      updateAllMarkerIcons();
       alert(`「${route.name}」の全 ${route.spots.length} 箇所を訪問済みに更新しました！`);
       closeSavedRoutesModal();
     }
