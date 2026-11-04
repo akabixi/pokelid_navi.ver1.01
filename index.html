@@ -88,7 +88,34 @@
     .btn-visit { background: #e5e7eb; color: #374151; }
     .btn-visited { background: #059669; color: white; }
     .btn-add-route { background: #2563eb; color: white; }
-
+/* ピン凡例バー */
+    .map-legend {
+      background: rgba(255, 255, 255, 0.95);
+      border-top: 1px solid #e5e7eb;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      font-weight: bold;
+      color: #374151;
+      z-index: 5;
+      box-shadow: 0 -1px 3px rgba(0,0,0,0.05);
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
     /* 下部パネル: 画面高さを拡大 */
     .control-panel { 
       background: white; 
@@ -285,6 +312,18 @@
 
   <div id="map"></div>
 
+  <!-- ▼ ここから追加：ピンの凡例 ▼ -->
+  <div class="map-legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#2563eb;"></span>ポケふた</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#7c3aed;"></span>スタンプラリー</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#dc2626;"></span>ポケセン</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#d97706;"></span>ルート選択</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#059669;"></span>訪問済</span>
+  </div>
+  <!-- ▲ ここまで追加 ▲ -->
+
+  <!-- 巡回ルート操作パネル -->
+  <div class="control-panel">
   <!-- スポット詳細モーダル -->
   <div id="photoModal" class="modal-overlay">
     <div class="modal-card">
