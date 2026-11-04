@@ -354,7 +354,7 @@
     <div class="share-modal-content">
       <h3 style="margin-top:0; color:#1e3a8a;">📂 保存したルート一覧 (最大10件)</h3>
       <div id="savedRoutesContainer" style="margin: 12px 0; max-height: 50vh; overflow-y: auto;"></div>
-      <button onclick="closeSavedRoutesModal()" style="background:#94a3b8; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">閉じる</button>
+      <button onclick="closeSavedRoutesModal()" style="background:#94a3b8; colorwhite; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">閉じる</button>
     </div>
   </div>
 
@@ -606,7 +606,7 @@
         { id: 238, name: "所沢市（ハクリュー・エアームド）", pref: "埼玉県所沢市日吉町1", lat: 35.786887, lng: 139.472881, officialUrl: "https://local.pokemon.jp/manhole/desc/212/" },
         { id: 239, name: "所沢市（カイリュー）", pref: "埼玉県所沢市並木1-13", lat: 35.798734, lng: 139.471991, officialUrl: "https://local.pokemon.jp/manhole/desc/213/" },
         { id: 240, name: "香取市（ガラルカモネギ）", pref: "千葉県香取市佐原イ109-14", lat: 35.894417, lng: 140.493902, officialUrl: "https://local.pokemon.jp/manhole/desc/222/" },
-        { id: 241, name: "タイレーツ・ココガラ）", pref: "千葉県香取市佐原イ1722-1", lat: 35.888376, lng: 140.497568, officialUrl: "https://local.pokemon.jp/manhole/desc/223/" },
+        { id: 241, name: "香取市（タイレーツ・ココガラ）", pref: "千葉県香取市佐原イ1722-1", lat: 35.888376, lng: 140.497568, officialUrl: "https://local.pokemon.jp/manhole/desc/223/" },
         { id: 242, name: "香取市（フラージェス・ヤヤコマ）", pref: "千葉県香取市佐原ハ4549-1", lat: 35.928206, lng: 140.523401, officialUrl: "https://local.pokemon.jp/manhole/desc/224/" },
         { id: 243, name: "香取市（ハスボー・タネボー・ムクバード）", pref: "千葉県香取市佐原イ4053-3", lat: 35.896204, lng: 140.506419, officialUrl: "https://local.pokemon.jp/manhole/desc/225/" },
         { id: 244, name: "町田市（フシギダネ）", pref: "東京都町田市原町田5-16", lat: 35.548108, lng: 139.45034, officialUrl: "https://local.pokemon.jp/manhole/desc/98/" },
@@ -1727,14 +1727,9 @@
       const countText = document.getElementById('shareCardCount').innerText;
       const memoInput = document.getElementById('shareMemoInput');
       const memoText = memoInput ? memoInput.value.trim() : '';
-      const memoFormatted = memoText ? '
-💬 ' + memoText + '
-' : '';
+      const memoFormatted = memoText ? '\n💬 ' + memoText + '\n' : '';
       
-      const text = encodeURIComponent('今日のポケふた巡り完了！
-' + countText + '！📸' + memoFormatted + '
-#ポケふた #ポケふたナビ
-');
+      const text = encodeURIComponent('今日のポケふた巡り完了！\n' + countText + '！📸' + memoFormatted + '\n#ポケふた #ポケふたナビ\n');
       const url = encodeURIComponent('https://akabixi.github.io/pokelid_navi.ver1.01/');
       window.open('https://x.com/intent/tweet?text=' + text + '&url=' + url, '_blank');
     }
