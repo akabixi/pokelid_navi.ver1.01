@@ -354,7 +354,7 @@
     <div class="share-modal-content">
       <h3 style="margin-top:0; color:#1e3a8a;">📂 保存したルート一覧 (最大10件)</h3>
       <div id="savedRoutesContainer" style="margin: 12px 0; max-height: 50vh; overflow-y: auto;"></div>
-      <button onclick="closeSavedRoutesModal()" style="background:#94a3b8; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">閉じる</button>
+      <button onclick="closeSavedRoutesModal()" style="background:#94a3b8; colorwhite; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">閉じる</button>
     </div>
   </div>
 
@@ -460,7 +460,8 @@
         { id: 47, name: "幌延町（アローラロコン・ロコン・フラベベ）", pref: "北海道 幌延町（北進398-1）", lat: 45.040817, lng: 141.8612, officialUrl: "https://local.pokemon.jp/manhole/desc/442/" },
         { id: 48, name: "津別町（アローラロコン・ロコン・メブキジカ）", pref: "北海道 津別町（共和127番地1）", lat: 43.6949434, lng: 144.029683, officialUrl: "https://local.pokemon.jp/manhole/desc/443/" },
         { id: 49, name: "湧別町（アローラロコン・ロコン・アブリー）", pref: "北海道 湧別町（中湧別中町3020番地の1）", lat: 44.18466, lng: 143.594848, officialUrl: "https://local.pokemon.jp/manhole/desc/444/" },
-        { id: 50, name: "別海町（アローラロコン・トドグラー）", pref: "北海道 別海町（尾岱沼5-27）", lat: 43.533265, lng: 145.23697, officialUrl: "https://local.pokemon.jp/manhole/desc/445/" }
+        { id: 50, name: "別海町（アローラロコン・トドグラー）", pref: "北海道 別海町（尾岱沼5-27）", lat: 43.533265, lng: 145.23697, officialUrl: "https://local.pokemon.jp/manhole/desc/445/" },
+        { id: 3001, type: "pokecen", name: "ポケモンセンターサッポロ", pref: "北海道札幌市中央区北5条西4-7", lat: 43.067469, lng: 141.349266, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/sapporo/" }
       ],
       touhoku: [
         { id: 101, name: "八戸市（キャモメ・イシツブテ）", pref: "青森県八戸市大字鮫町鮫付近", lat: 40.537937, lng: 141.558034, officialUrl: "https://local.pokemon.jp/manhole/desc/157/" },
@@ -605,7 +606,7 @@
         { id: 238, name: "所沢市（ハクリュー・エアームド）", pref: "埼玉県所沢市日吉町1", lat: 35.786887, lng: 139.472881, officialUrl: "https://local.pokemon.jp/manhole/desc/212/" },
         { id: 239, name: "所沢市（カイリュー）", pref: "埼玉県所沢市並木1-13", lat: 35.798734, lng: 139.471991, officialUrl: "https://local.pokemon.jp/manhole/desc/213/" },
         { id: 240, name: "香取市（ガラルカモネギ）", pref: "千葉県香取市佐原イ109-14", lat: 35.894417, lng: 140.493902, officialUrl: "https://local.pokemon.jp/manhole/desc/222/" },
-        { id: 241, name: "香取市（タイレーツ・ココガラ）", pref: "千葉県香取市佐原イ1722-1", lat: 35.888376, lng: 140.497568, officialUrl: "https://local.pokemon.jp/manhole/desc/223/" },
+        { id: 241, name: "タイレーツ・ココガラ）", pref: "千葉県香取市佐原イ1722-1", lat: 35.888376, lng: 140.497568, officialUrl: "https://local.pokemon.jp/manhole/desc/223/" },
         { id: 242, name: "香取市（フラージェス・ヤヤコマ）", pref: "千葉県香取市佐原ハ4549-1", lat: 35.928206, lng: 140.523401, officialUrl: "https://local.pokemon.jp/manhole/desc/224/" },
         { id: 243, name: "香取市（ハスボー・タネボー・ムクバード）", pref: "千葉県香取市佐原イ4053-3", lat: 35.896204, lng: 140.506419, officialUrl: "https://local.pokemon.jp/manhole/desc/225/" },
         { id: 244, name: "町田市（フシギダネ）", pref: "東京都町田市原町田5-16", lat: 35.548108, lng: 139.45034, officialUrl: "https://local.pokemon.jp/manhole/desc/98/" },
@@ -625,7 +626,27 @@
         { id: 258, name: "横浜市（ピカチュウ・ライチュウ）", pref: "神奈川県横浜市中区新港一丁目", lat: 35.451037, lng: 139.644154, officialUrl: "https://local.pokemon.jp/manhole/desc/311/" },
         { id: 259, name: "横浜市（ピカチュウ・ペリッパー）", pref: "神奈川県横浜市中区山下町14-1", lat: 35.443707, lng: 139.650904, officialUrl: "https://local.pokemon.jp/manhole/desc/312/" },
         { id: 260, name: "横浜市（ピカチュウ・ビクティニ・ゴンベ）", pref: "神奈川県横浜市西区みなとみらい一丁目", lat: 35.458698, lng: 139.638331, officialUrl: "https://local.pokemon.jp/manhole/desc/313/" },
-        { id: 261, name: "横浜市（ピカチュウ・コダック・ワンリキー）", pref: "神奈川県横浜市西区みなとみらい2-1-1", lat: 35.453319, lng: 139.631688, officialUrl: "https://local.pokemon.jp/manhole/desc/314/" }
+        { id: 261, name: "横浜市（ピカチュウ・コダック・ワンリキー）", pref: "神奈川県横浜市西区みなとみらい2-1-1", lat: 35.453319, lng: 139.631688, officialUrl: "https://local.pokemon.jp/manhole/desc/314/" },
+        { id: 3003, type: "pokecen", name: "ポケモンセンターシブヤ", pref: "東京都渋谷区宇田川町15-1 渋谷PARCO 6F", lat: 35.661956, lng: 139.698441, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/shibuya/" },
+        { id: 3004, type: "pokecen", name: "ポケモンセンタートウキョーDX", pref: "東京都中央区日本橋2-11-2 日本橋髙島屋S.C.東館 5F", lat: 35.68029, lng: 139.77427, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/tokyodx/" },
+        { id: 3005, type: "pokecen", name: "ポケモンセンタースカイツリータウン", pref: "東京都墨田区押上1-1-2 東京スカイツリータウン・ソラマチ イーストヤード 4F", lat: 35.710345, lng: 139.812612, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/skytreetown/" },
+        { id: 3006, type: "pokecen", name: "ポケモンセンターメガトウキョー", pref: "東京都豊島区東池袋3-1-2 サンシャインシティ 専門店街アルパ 2F", lat: 35.728906, lng: 139.719324, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/megatokyo/" },
+        { id: 3007, type: "pokecen", name: "Pokémon GO Lab.", pref: "東京都豊島区東池袋3-1-2 サンシャインシティ 専門店街アルパ 2F", lat: 35.7291, lng: 139.718698, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/megatokyo/" },
+        { id: 3008, type: "pokecen", name: "ポケモンセンタートウキョーベイ", pref: "千葉県船橋市浜町2-1-1 ららぽーとTOKYO-BAY 西館 2F", lat: 35.686603, lng: 139.989036, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/tokyobay/" },
+        { id: 3009, type: "pokecen", name: "ポケモンセンターヨコハマ", pref: "神奈川県横浜市西区高島2-19-12 マルイシティ横浜 8F", lat: 35.464572, lng: 139.62449, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/yokohama/" },
+        { id: 2001, type: "stamprally", name: "スタンプラリー：東京タワー", pref: "東京都港区芝公園4-2-8", lat: 35.65858, lng: 139.745433, officialUrl: "https://pokemongolive.com/" },
+        { id: 2002, type: "stamprally", name: "スタンプラリー：蒸気機関車C11 292号機", pref: "東京都港区新橋2-7 新橋駅前SL広場", lat: 35.667137, lng: 139.757424, officialUrl: "https://pokemongolive.com/" },
+        { id: 2003, type: "stamprally", name: "スタンプラリー：港区立鞆絵小学校校舎跡", pref: "東京都港区虎ノ門3-13-3", lat: 35.665614, lng: 139.746183, officialUrl: "https://pokemongolive.com/" },
+        { id: 2004, type: "stamprally", name: "スタンプラリー：江戸見坂", pref: "東京都港区虎ノ門2丁目", lat: 35.666728, lng: 139.745229, officialUrl: "https://pokemongolive.com/" },
+        { id: 2005, type: "stamprally", name: "スタンプラリー：芝公園 Gym Statue", pref: "東京都港区芝公園4丁目", lat: 35.656129, lng: 139.749144, officialUrl: "https://pokemongolive.com/" },
+        { id: 2006, type: "stamprally", name: "スタンプラリー：天王洲アイル第四公園", pref: "東京都品川区東品川2-2", lat: 35.623622, lng: 139.748804, officialUrl: "https://pokemongolive.com/" },
+        { id: 2007, type: "stamprally", name: "スタンプラリー：品川区立聖蹟公園", pref: "東京都品川区北品川2-7-21", lat: 35.619006, lng: 139.744239, officialUrl: "https://pokemongolive.com/" },
+        { id: 2008, type: "stamprally", name: "スタンプラリー：街道松の広場", pref: "東京都品川区南品川1-2", lat: 35.615532, lng: 139.744164, officialUrl: "https://pokemongolive.com/" },
+        { id: 2009, type: "stamprally", name: "スタンプラリー：鮫洲入江広場", pref: "東京都品川区東大井1-13", lat: 35.603743, lng: 139.743958, officialUrl: "https://pokemongolive.com/" },
+        { id: 2010, type: "stamprally", name: "スタンプラリー：江東区役所", pref: "東京都江東区東陽4-11-28", lat: 35.672889, lng: 139.81731, officialUrl: "https://pokemongolive.com/" },
+        { id: 2011, type: "stamprally", name: "スタンプラリー：イースト21 女神の噴水", pref: "東京都江東区東陽6-3-2", lat: 35.674707, lng: 139.815205, officialUrl: "https://pokemongolive.com/" },
+        { id: 2012, type: "stamprally", name: "スタンプラリー：仙台堀川公園 赤ちゃん噴水池", pref: "東京都江東区東陽6丁目", lat: 35.676138, lng: 139.812708, officialUrl: "https://pokemongolive.com/" },
+        { id: 2013, type: "stamprally", name: "スタンプラリー：東京都現代美術館かたつむりのようにB", pref: "東京都江東区三好4-1-1", lat: 35.679507, lng: 139.807375, officialUrl: "https://pokemongolive.com/" }
       ],
       chubu: [
         { id: 262, name: "小千谷市（コイキング）", pref: "新潟県小千谷市城内2-7-5", lat: 37.314216, lng: 138.794792, officialUrl: "https://local.pokemon.jp/manhole/desc/144/" },
@@ -684,7 +705,9 @@
         { id: 315, name: "瀬戸市（ニャヒート・ブーバー）", pref: "愛知県瀬戸市蔵所町1-1", lat: 35.2257073, lng: 137.1008385, officialUrl: "https://local.pokemon.jp/manhole/desc/405/" },
         { id: 316, name: "常滑市（ピジョット・アローラニャース）", pref: "愛知県常滑市りんくう町２丁目 りんくうビーチ", lat: 34.88566, lng: 136.8231592, officialUrl: "https://local.pokemon.jp/manhole/desc/406/" },
         { id: 317, name: "刈谷市（タツベイ・ジュカイン・キバゴ）", pref: "愛知県刈谷市東境町吉野55", lat: 35.04095, lng: 137.0481, officialUrl: "https://local.pokemon.jp/manhole/desc/407/" },
-        { id: 318, name: "西尾市（マホイップ・ゴクリン）", pref: "愛知県西尾市錦城町233", lat: 34.867221, lng: 137.048298, officialUrl: "https://local.pokemon.jp/manhole/desc/408/" }
+        { id: 318, name: "西尾市（マホイップ・ゴクリン）", pref: "愛知県西尾市錦城町233", lat: 34.867221, lng: 137.048298, officialUrl: "https://local.pokemon.jp/manhole/desc/408/" },
+        { id: 3010, type: "pokecen", name: "ポケモンセンターカナザワ", pref: "石川県金沢市堀川新町3-1 金沢フォーラス 5F", lat: 36.579148, lng: 136.649754, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/kanazawa/" },
+        { id: 3011, type: "pokecen", name: "ポケモンセンターナゴヤ", pref: "愛知県名古屋市東区東桜1-11-1 オアシス21 2F", lat: 35.163567, lng: 136.908068, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/nagoya/" }
       ],
       kansai: [
         { id: 319, name: "津市（ミジュマル）", pref: "三重県津市西丸之内23番1号", lat: 34.718493, lng: 136.5108, officialUrl: "https://local.pokemon.jp/manhole/desc/240/" },
@@ -748,7 +771,15 @@
         { id: 377, name: "高野町（ウーラオス）", pref: "和歌山県高野町高野山357", lat: 34.212091, lng: 135.583052, officialUrl: "https://local.pokemon.jp/manhole/desc/343/" },
         { id: 378, name: "白浜町（ヤンチャム・ナミイルカ）", pref: "和歌山県白浜町堅田1474", lat: 33.675779, lng: 135.387056, officialUrl: "https://local.pokemon.jp/manhole/desc/344/" },
         { id: 379, name: "串本町（ピィ・リグレー・ジバコイル）", pref: "和歌山県串本町西向359番地", lat: 33.517997, lng: 135.823074, officialUrl: "https://local.pokemon.jp/manhole/desc/345/" },
-        { id: 380, name: "那智勝浦町（セレビィ）", pref: "和歌山県那智勝浦町大字市野々3034-2", lat: 33.668973, lng: 135.902917, officialUrl: "https://local.pokemon.jp/manhole/desc/346/" }
+        { id: 380, name: "那智勝浦町（セレビィ）", pref: "和歌山県那智勝浦町大字市野々3034-2", lat: 33.668973, lng: 135.902917, officialUrl: "https://local.pokemon.jp/manhole/desc/346/" },
+        { id: 3012, type: "pokecen", name: "ポケモンセンターキョウト", pref: "京都府京都市下京区四条通室町東入函谷鉾町78 経済センター SUINA室町 2F", lat: 35.003417, lng: 135.758384, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/kyoto/" },
+        { id: 3013, type: "pokecen", name: "ポケモンセンターオーサカ", pref: "大阪府大阪市北区梅田3-1-1 大丸梅田店 13F", lat: 34.701858, lng: 135.49647, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/osaka/" },
+        { id: 3014, type: "pokecen", name: "ポケモンセンターオーサカDX", pref: "大阪府大阪市中央区心斎橋筋1-7-1 大丸心斎橋店 本館9F", lat: 34.673172, lng: 135.500754, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/osakadx/" },
+        { id: 2014, type: "stamprally", name: "スタンプラリー：万博記念公園駅出口周辺エリア", pref: "大阪府吹田市千里万博公園", lat: 34.806184, lng: 135.532416, officialUrl: "https://pokemongo.com/post/suita_rally?hl=ja" },
+        { id: 2015, type: "stamprally", name: "スタンプラリー：千里北公園周辺エリア", pref: "大阪府吹田市藤白台5-1", lat: 34.825196, lng: 135.509661, officialUrl: "https://pokemongo.com/post/suita_rally?hl=ja" },
+        { id: 2016, type: "stamprally", name: "スタンプラリー：千里南公園周辺エリア", pref: "大阪府吹田市津雲台1-3", lat: 34.796688, lng: 135.507421, officialUrl: "https://pokemongo.com/post/suita_rally?hl=ja" },
+        { id: 2017, type: "stamprally", name: "スタンプラリー：江坂公園周辺エリア", pref: "大阪府吹田市江坂町1-19", lat: 34.759578, lng: 135.500368, officialUrl: "https://pokemongo.com/post/suita_rally?hl=ja" },
+        { id: 2018, type: "stamprally", name: "スタンプラリー：吹田歴史文化まちづくりセンター（浜屋敷）周辺エリア", pref: "大阪府吹田市南高浜町3-6", lat: 34.756825, lng: 135.527363, officialUrl: "https://pokemongo.com/post/suita_rally?hl=ja" }
       ],
       chugoku: [
         { id: 381, name: "鳥取市（サンド・アローラサンド・ミミロル）", pref: "鳥取県鳥取市福部町湯山2083-17地先", lat: 35.539668, lng: 134.237266, officialUrl: "https://local.pokemon.jp/manhole/desc/74/" },
@@ -783,7 +814,8 @@
         { id: 410, name: "下関市（エンペルト・ホエルコ）", pref: "山口県下関市阿弥陀寺町6", lat: 33.958211, lng: 130.948691, officialUrl: "https://local.pokemon.jp/manhole/desc/288/" },
         { id: 411, name: "下関市（チョンチー・ハリーセン）", pref: "山口県下関市あるかぽーと6", lat: 33.954627, lng: 130.9416769, officialUrl: "https://local.pokemon.jp/manhole/desc/289/" },
         { id: 412, name: "下関市（アーボ）", pref: "山口県下関市大字彦島字船島648", lat: 33.934094, lng: 130.930909, officialUrl: "https://local.pokemon.jp/manhole/desc/290/" },
-        { id: 413, name: "下関市（ドガース）", pref: "山口県下関市大字彦島字船島648", lat: 33.935457, lng: 130.929705, officialUrl: "https://local.pokemon.jp/manhole/desc/291/" }
+        { id: 413, name: "下関市（ドガース）", pref: "山口県下関市大字彦島字船島648", lat: 33.935457, lng: 130.929705, officialUrl: "https://local.pokemon.jp/manhole/desc/291/" },
+        { id: 3015, type: "pokecen", name: "ポケモンセンターヒロシマ", pref: "広島県広島市中区基町6-27 そごう広島店 本館8F", lat: 34.39769, lng: 132.476111, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/hiroshima/" }
       ],
       shikoku: [
         { id: 434, name: "鳴門市（スイクン）", pref: "徳島県鳴門市鳴門町土佐泊浦字大毛82-100", lat: 34.224106, lng: 134.636196, officialUrl: "https://local.pokemon.jp/manhole/desc/327/" },
@@ -831,7 +863,8 @@
         { id: 558, name: "四万十市（ヌオー・メガヤンマ）", pref: "高知県四万十市駅前町8-3", lat: 32.984011, lng: 132.944202, officialUrl: "https://local.pokemon.jp/manhole/desc/492/" },
         { id: 559, name: "芸西村（ヌオー・フラエッテ・ピッピ）", pref: "高知県安芸郡芸西村和食甲452-1", lat: 33.518934, lng: 133.800267, officialUrl: "https://local.pokemon.jp/manhole/desc/493/" },
         { id: 560, name: "いの町（ヌオー・ウパー）", pref: "高知県吾川郡いの町新町（JR伊野駅ロータリー）", lat: 33.547787, lng: 133.4302173, officialUrl: "https://local.pokemon.jp/manhole/desc/494/" },
-        { id: 561, name: "佐川町（ヌオー・ポポッコ・ゾウドウ）", pref: "高知県高岡郡佐川町加茂2711-1", lat: 33.502925, lng: 133.317222, officialUrl: "https://local.pokemon.jp/manhole/desc/495/" }
+        { id: 561, name: "佐川町（ヌオー・ポポッコ・ゾウドウ）", pref: "高知県高岡郡佐川町加茂2711-1", lat: 33.502925, lng: 133.317222, officialUrl: "https://local.pokemon.jp/manhole/desc/495/" },
+        { id: 3016, type: "pokecen", name: "ポケモンセンターカガワ", pref: "香川県高松市サンポート2-1 高松シンボルタワー デックスガレリア 1F", lat: 34.342282, lng: 134.050061, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/kagawa/" }
       ],
       kyushu: [
         { id: 475, name: "北九州市（ボスゴドラ）", pref: "福岡県北九州市小倉北区室町一丁目1 リバーウォーク北九州", lat: 33.884982, lng: 130.876213, officialUrl: "https://local.pokemon.jp/manhole/desc/198/" },
@@ -915,7 +948,17 @@
         { id: 553, name: "大宜味村(ガーディ・ヤヤコマ）", pref: "沖縄県 大宜味村字津波95番地", lat: 26.661031, lng: 128.101938, officialUrl: "https://local.pokemon.jp/manhole/desc/488/" },
         { id: 554, name: "東村（ガーディ・ニョロトノ・グレッグル）", pref: "沖縄県 東村平良550-23", lat: 26.631012, lng: 128.153484, officialUrl: "https://local.pokemon.jp/manhole/desc/489/" },
         { id: 555, name: "北大東村（ガーディ・ソルガレオ）", pref: "沖縄県 北大東村南", lat: 25.944616, lng: 131.327837, officialUrl: "https://local.pokemon.jp/manhole/desc/490/" },
-        { id: 556, name: "国頭村（ガーディ・ルナアーラ）", pref: "沖縄県 国頭村字辺戸岬原973番1の一部", lat: 26.872162, lng: 128.264672, officialUrl: "https://local.pokemon.jp/manhole/desc/487/" }
+        { id: 556, name: "国頭村（ガーディ・ルナアーラ）", pref: "沖縄県 国頭村字辺戸岬原973番1の一部", lat: 26.872162, lng: 128.264672, officialUrl: "https://local.pokemon.jp/manhole/desc/487/" },
+        { id: 3017, type: "pokecen", name: "ポケモンセンターフクオカ", pref: "福岡県福岡市博多区博多駅中央街1-1 JR博多シティ 8F", lat: 33.589003, lng: 130.419256, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/fukuoka/" },
+        { id: 3018, type: "pokecen", name: "ポケモンセンターオキナワ", pref: "沖縄県中頭郡北中城村ライカム1番地 イオンモール沖縄ライカム 1F", lat: 26.313199, lng: 127.796159, officialUrl: "https://www.pokemon.co.jp/shop/pokecen/okinawa/" },
+        { id: 2019, type: "stamprally", name: "スタンプラリー：長崎スタジアムシティ", pref: "長崎県長崎市幸町7-1", lat: 32.759773, lng: 129.864269, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" },
+        { id: 2020, type: "stamprally", name: "スタンプラリー：アミュプラザ長崎の大時計", pref: "長崎県長崎市尾上町1-1", lat: 32.752186, lng: 129.870893, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" },
+        { id: 2021, type: "stamprally", name: "スタンプラリー：おのうえの丘", pref: "長崎県長崎市尾上町3-1", lat: 32.749383, lng: 129.86848, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" },
+        { id: 2022, type: "stamprally", name: "スタンプラリー：水辺の森公園", pref: "長崎県長崎市常盤町22", lat: 32.741276, lng: 129.868666, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" },
+        { id: 2023, type: "stamprally", name: "スタンプラリー：新地橋広場", pref: "長崎県長崎市新地町9", lat: 32.742042, lng: 129.87574, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" },
+        { id: 2024, type: "stamprally", name: "スタンプラリー：長崎県庁舎跡地", pref: "長崎県長崎市江戸町2-7", lat: 32.744684, lng: 129.873549, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" },
+        { id: 2025, type: "stamprally", name: "スタンプラリー：魚の町公園", pref: "長崎県長崎市魚の町5", lat: 32.748867, lng: 129.880692, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" },
+        { id: 2026, type: "stamprally", name: "スタンプラリー：長崎歴史文化博物館", pref: "長崎県長崎市立山1-1-1", lat: 32.752582, lng: 129.879431, officialUrl: "https://pokemongo.com/news/stamp-rally-nagasaki" }
       ]
     };
 
@@ -977,7 +1020,7 @@
       });
     }
 
-    // スポットの状態に応じた適切なアイコンを返す
+    // スポットの状態・種別に応じた適切なアイコンを返す
     function getMarkerIcon(spotId) {
       const routeIndex = selectedRoute.findIndex(s => s.id === spotId);
       if (routeIndex !== -1) {
@@ -991,9 +1034,21 @@
       if (isVisitedBool) {
         // 訪問済：緑
         return createIcon("#059669");
+      }
+
+      // 未訪問時：種別ごとに色分け
+      let currentSpot = null;
+      for (const reg in rawSpotData) {
+        const found = rawSpotData[reg].find(s => s.id === spotId);
+        if (found) { currentSpot = found; break; }
+      }
+
+      if (currentSpot && currentSpot.type === "stamprally") {
+        return createIcon("#7c3aed"); // スタンプラリー：紫
+      } else if (currentSpot && currentSpot.type === "pokecen") {
+        return createIcon("#dc2626"); // ポケモンセンター：赤
       } else {
-        // 未訪問：青
-        return createIcon("#2563EB");
+        return createIcon("#2563eb"); // ポケふた：青
       }
     }
 
@@ -1176,7 +1231,16 @@
       
       document.getElementById('modalTitle').innerText = spot.name;
       document.getElementById('modalPref').innerText = spot.pref;
-      document.getElementById('modalOfficialLink').href = spot.officialUrl || "https://local.pokemon.jp/manhole/";
+      
+      const linkBtn = document.getElementById('modalOfficialLink');
+      linkBtn.href = spot.officialUrl || "https://local.pokemon.jp/manhole/";
+      if (spot.type === "stamprally") {
+        linkBtn.innerText = "🔍 公式スタンプラリー情報を確認 ↗";
+      } else if (spot.type === "pokecen") {
+        linkBtn.innerText = "🔍 ポケモンセンター店舗情報 ↗";
+      } else {
+        linkBtn.innerText = "🔍 公式Webで絵柄を見る ↗";
+      }
 
       const isVisited = visitedStatus[spot.id] || false;
       const isVisitedBool = typeof isVisited === 'object' ? isVisited.visited : !!isVisited;
@@ -1663,9 +1727,14 @@
       const countText = document.getElementById('shareCardCount').innerText;
       const memoInput = document.getElementById('shareMemoInput');
       const memoText = memoInput ? memoInput.value.trim() : '';
-      const memoFormatted = memoText ? '\n💬 ' + memoText + '\n' : '';
+      const memoFormatted = memoText ? '
+💬 ' + memoText + '
+' : '';
       
-      const text = encodeURIComponent('今日のポケふた巡り完了！\n' + countText + '！📸' + memoFormatted + '\n#ポケふた #ポケふたナビ\n');
+      const text = encodeURIComponent('今日のポケふた巡り完了！
+' + countText + '！📸' + memoFormatted + '
+#ポケふた #ポケふたナビ
+');
       const url = encodeURIComponent('https://akabixi.github.io/pokelid_navi.ver1.01/');
       window.open('https://x.com/intent/tweet?text=' + text + '&url=' + url, '_blank');
     }
